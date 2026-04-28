@@ -34,11 +34,23 @@ tr.missing { background:white; }
   background:white;
   padding:36px;
   border-radius:24px;
-  max-width:460px;
-  margin:80px auto;
+  width:100%;
+  max-width:520px;
+  margin:40px auto;
   box-shadow:0 10px 35px rgba(0,0,0,.08);
+  box-sizing:border-box;
 }
-.loginLogo { font-size:56px; text-align:center; margin-bottom:10px; }
+.loginLogo {
+  text-align:center;
+  margin-bottom:15px;
+}
+
+.loginLogo img {
+  width:90px;
+  height:auto;
+  display:block;
+  margin:0 auto;
+}
 .loginCard h1 { text-align:center; margin:0; font-size:32px; }
 .loginSubtitle { text-align:center; color:#6b7280; margin-bottom:28px; }
 .loginCard label { display:block; font-weight:bold; margin-top:16px; margin-bottom:6px; }
@@ -109,15 +121,6 @@ tr.missing { background:white; }
   <div class="loginLogo">
   <img src="logo.png" alt="logo">
 </div>
-  .loginLogo {
-  text-align:center;
-  margin-bottom:15px;
-}
-
-.loginLogo img {
-  width:30px;
-  height:auto;
-}
   <h1>Pakowanie Toreb</h1>
   <p class="loginSubtitle">Zaloguj się, aby rozpocząć skanowanie</p>
 
