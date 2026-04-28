@@ -49,6 +49,7 @@ tr.missing { background:white; }
   border-radius:12px;
   border:2px solid #d1d5db;
   margin:0;
+  box-sizing:border-box;
 }
 .loginInput:focus { outline:none; border-color:#2563eb; }
 .loginBtn {
@@ -105,12 +106,12 @@ tr.missing { background:white; }
 <body>
 
 <div class="loginCard" id="loginScreen">
-  <div class="loginLogo">📦</div>
+  <div class="loginLogo">🛍️</div>
   <h1>Pakowanie Toreb</h1>
   <p class="loginSubtitle">Zaloguj się, aby rozpocząć skanowanie</p>
 
   <label>Login pracownika</label>
-  <input id="email" class="loginInput" placeholder="np. pracownik1">
+  <input id="email" class="loginInput" placeholder="np. JanKowalski">
 
   <label>Hasło</label>
   <input id="password" class="loginInput" type="password" placeholder="Wpisz hasło">
