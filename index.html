@@ -5,6 +5,22 @@
 <title>Pakowanie Toreb</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+.scanInput {
+  font-size:32px;
+  padding:18px;
+  width:90%;
+  border:3px solid #2563eb;
+  border-radius:14px;
+}
+
+.focusHint {
+  background:#dbeafe;
+  color:#1e40af;
+  padding:14px;
+  border-radius:12px;
+  font-weight:bold;
+  margin:12px 0;
+}
 body { font-family: Arial; padding:20px; background:#f3f4f6; }
 .card { background:white; padding:25px; border-radius:18px; max-width:1000px; margin:auto; }
 input { font-size:28px; padding:15px; width:90%; margin:10px 0; }
@@ -137,7 +153,8 @@ tr.missing { background:white; }
 
 <div class="card hidden" id="bagScreen">
   <h1>📦 Zeskanuj torbę</h1>
-  <input id="bagInput" placeholder="QR Torby">
+  <div class="focusHint" onclick="bagInput.focus()">Dotknij tutaj albo pola poniżej, żeby rozpocząć skanowanie torby</div>
+<input id="bagInput" class="scanInput" placeholder="QR Torby" autofocus>
   <p id="bagStatus"></p>
 </div>
 
@@ -145,7 +162,8 @@ tr.missing { background:white; }
   <h1>🍱 Skanowanie tacek</h1>
   <h2>Torba: <span id="currentBagLabel"></span></h2>
 
-  <input id="trayInput" placeholder="QR Tacki">
+  <div class="focusHint" onclick="trayInput.focus()">Dotknij tutaj albo pola poniżej, żeby skanować tacki</div>
+<input id="trayInput" class="scanInput" placeholder="QR Tacki">
 
   <br>
   <button class="fullBtn" onclick="closeBagBad()">❌ Zamknij jako nieprawidłową</button>
@@ -216,7 +234,14 @@ function sound(type) {
     }
   } catch(e) {}
 }
-
+function keepFocus(input) {
+  document.addEventListener("click", () => {
+    if (!input.classList.contains("hidden")) {
+      setTimeout(() => input.focus(), 50);
+    }
+  });
+}
+  
 function playTone(freq, volume, duration) {
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
@@ -707,6 +732,8 @@ function reset() {
   showOnly("bagScreen");
   setTimeout(() => bagInput.focus(), 100);
 }
+keepFocus(bagInput);
+keepFocus(trayInput);
 </script>
 
 </body>
