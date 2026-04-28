@@ -250,6 +250,17 @@ function showOnly(id) {
   });
   document.getElementById(id).classList.remove("hidden");
 }
+  
+function focusBagInput() {
+  setTimeout(() => {
+    bagInput.focus();
+    bagInput.click();
+  }, 50);
+
+  setTimeout(() => {
+    bagInput.focus();
+  }, 300);
+}
 
 function getLoginEmail(loginValue) {
   const value = String(loginValue || "").trim().toLowerCase();
@@ -353,9 +364,9 @@ async function login() {
   sound("ok");
 
   setTimeout(() => {
-    showOnly("bagScreen");
-    bagInput.focus();
-  }, 400);
+  showOnly("bagScreen");
+  focusBagInput();
+}, 400);
 }
 
 async function loadBag() {
@@ -444,7 +455,7 @@ function cancelDuplicateBag() {
   bagInput.value = "";
   bagStatus.innerText = "";
   showOnly("bagScreen");
-  setTimeout(() => bagInput.focus(), 100);
+  focusBagInput();
 }
 
 async function replaceOldBagSession() {
