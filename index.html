@@ -118,6 +118,12 @@ tr.missing { background:white; }
   margin:8px 0;
   border-radius:10px;
 }
+  .trayIcon {
+  width:46px;
+  height:auto;
+  vertical-align:middle;
+  margin-left:10px;
+}
 .btnCancel { background:#e5e7eb; }
 .btnReplace { background:#f97316; color:white; border:none; }
 .btnAnother { background:#2563eb; color:white; border:none; }
@@ -151,19 +157,18 @@ tr.missing { background:white; }
 </div>
 
 <div class="card hidden" id="trayScreen">
-  <h1>🍱 Skanowanie tacek</h1>
+  <h1>Skanowanie tacek <img src="tacka.png" class="trayIcon" alt="tacka"></h1>
   <h2>Torba: <span id="currentBagLabel"></span></h2>
 
 <input id="trayInput" class="scanInput" placeholder="Zeskanuj kod tacki">
 
   <br>
-  <button class="fullBtn" onclick="closeBagBad()">❌ Zamknij jako nieprawidłową</button>
+  <button class="fullBtn" onclick="closeBagBad()">❌ Zamknij jako niepoprawną</button>
 
   <p id="status"></p>
 
-  <h2>Postęp: <span id="progress">0/0</span></h2>
 
-  <h3>Oczekiwane tacki</h3>
+  <h3>Oczekiwane tacki <span id="expectedProgress">0/0</span></h3>
   <div id="expectedList"></div>
 
   <h3>Problemy</h3>
@@ -558,17 +563,16 @@ function render() {
   const correct = getCorrect();
   const missing = getMissing();
 
-  progress.innerText = correct.length + "/" + expectedItems.length;
+  expectedProgress.innerText = correct.length + "/" + expectedItems.length;
 
   expectedList.innerHTML = `
     <table>
       <thead>
         <tr>
-          <th>Posiłek</th>
-          <th>Kod</th>
-          <th>Rozmiar</th>
-          <th>Nazwa dania</th>
-          <th>QR Tacki</th>
+<th>Posiłek</th>
+<th>Kod</th>
+<th>Rozmiar</th>
+<th>QR Tacki</th>
         </tr>
       </thead>
       <tbody>
@@ -576,11 +580,13 @@ function render() {
           const done = correct.includes(normalizeCode(i.tray_qr));
           return `
             <tr class="${done ? "done" : "missing"}">
-              <td>${i.meal || ""}</td>
-              <td>${i.code || ""}</td>
-              <td>${i.size || ""}</td>
-              <td>${i.dish_name || ""}</td>
-              <td><b>${i.tray_qr || ""}</b></td>
+              <td>
+  <b>${i.meal || ""}</b><br>
+  <span style="font-size:14px;color:#6b7280;">${i.dish_name || ""}</span>
+</td>
+<td>${i.code || ""}</td>
+<td>${i.size || ""}</td>
+<td>${i.tray_qr || ""}</td>
             </tr>
           `;
         }).join("")}
