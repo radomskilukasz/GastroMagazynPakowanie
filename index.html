@@ -35,7 +35,64 @@ button { font-size:18px; padding:8px 12px; margin:5px; cursor:pointer; }
   border:none;
   border-radius:10px;
 }
+.bagCard {
+  background:white;
+  padding:36px;
+  border-radius:24px;
+  width:100%;
+  max-width:620px;
+  margin:40px auto;
+  box-shadow:0 10px 35px rgba(0,0,0,.08);
+  box-sizing:border-box;
+}
 
+.bagCard h1 {
+  text-align:center;
+  margin:0;
+  font-size:34px;
+}
+
+.bagSubtitle {
+  text-align:center;
+  color:#6b7280;
+  margin-top:8px;
+  margin-bottom:30px;
+  font-size:18px;
+}
+
+.bagLabel {
+  display:block;
+  font-weight:bold;
+  margin-bottom:8px;
+  font-size:18px;
+}
+
+.bagInput {
+  width:100%;
+  font-size:30px;
+  padding:18px;
+  border-radius:14px;
+  border:3px solid #2563eb;
+  margin:0;
+  box-sizing:border-box;
+  text-align:center;
+  font-weight:bold;
+  letter-spacing:1px;
+}
+
+.bagInput:focus {
+  outline:none;
+  border-color:#1d4ed8;
+  box-shadow:0 0 0 4px rgba(37,99,235,.15);
+}
+
+.bagStatus {
+  margin-top:20px;
+  text-align:center;
+  font-size:24px;
+  font-weight:bold;
+  min-height:34px;
+}
 table { width:100%; border-collapse:collapse; margin-top:10px; font-size:17px; }
 th, td { border:1px solid #ddd; padding:10px; text-align:left; }
 th { background:#e5e7eb; }
@@ -52,6 +109,7 @@ tr.missing { background:white; }
   box-shadow:0 10px 35px rgba(0,0,0,.08);
   box-sizing:border-box;
 }
+  
 .loginLogo { text-align:center; margin-bottom:15px; }
 .loginLogo img { width:90px; height:auto; display:block; margin:0 auto; }
 .loginCard h1 { text-align:center; margin:0; font-size:32px; }
@@ -249,14 +307,18 @@ tr.missing { background:white; }
   <p id="loginStatus" class="loginStatus"></p>
 </div>
 
-<div class="card hidden" id="bagScreen">
+<div class="bagCard hidden" id="bagScreen">
   <div class="loginLogo">
     <img src="logo.png" alt="logo">
   </div>
 
   <h1>Zeskanuj torbę</h1>
-  <input id="bagInput" class="scanInput" placeholder="Zeskanuj kod torby" autofocus>
-  <p id="bagStatus"></p>
+  <p class="bagSubtitle">Zeskanuj kod QR torby, aby rozpocząć pakowanie</p>
+
+  <label class="bagLabel">Kod torby</label>
+  <input id="bagInput" class="bagInput" placeholder="Zeskanuj kod torby" autofocus>
+
+  <p id="bagStatus" class="bagStatus"></p>
 </div>
 
 <div class="card hidden" id="trayScreen">
