@@ -196,7 +196,23 @@ const supabaseClient = window.supabase.createClient(
 );
 
 const LOGIN_DOMAIN = "@pakowanie.local";
+async function getUserRole(userId) {
+  const { data, error } = await supabaseClient
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .single();
 
+  if (error || !data) {
+    return null;
+  }
+
+  return data.role;
+}
+
+function hasAccess(role, allowedRoles) {
+  return allowedRoles.includes(role);
+}
 let currentUser = null;
 let currentBag = null;
 let expectedItems = [];
@@ -374,10 +390,18 @@ async function login() {
     return;
   }
 
-  currentUser = data.user;
+currentUser = data.user;
 
-  showLoginMessage("Zalogowano pomyślnie.", "ok");
-  sound("ok");
+const role = await getUserRole(currentUser.id);
+
+if (!hasAccess(role, ["worker", "manager", "admin"])) {
+  showLoginMessage("Brak dostępu do pakowania.");
+  sound("bad");
+  return;
+}
+
+showLoginMessage("Zalogowano pomyślnie.", "ok");
+sound("ok");
 
   setTimeout(() => {
   showOnly("bagScreen");
