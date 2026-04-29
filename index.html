@@ -6,29 +6,8 @@
 <meta charset="UTF-8">
 <title>Pakowanie Toreb</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-.scanInput {
-  font-size:32px;<!DOCTYPE html>
-<html lang="pl">
-<head>
-<link rel="icon" type="image/png" sizes="32x32" href="logo-removebg-preview.png">
-<link rel="icon" type="image/png" sizes="16x16" href="logo-removebg-preview.png">
-<meta charset="UTF-8">
-<title>Pakowanie Toreb</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-.scanInput {
-  font-size:32px;
-  padding:18px;
-  width:90%;
-  border:3px solid #2563eb;
-  border-radius:14px;
-}
-  .mealClick {
-  cursor:pointer;
-  text-decoration:underline;
-  opacity:0.7;
-}
 body { font-family: Arial; padding:20px; background:#f3f4f6; }
 .card { background:white; padding:25px; border-radius:18px; max-width:1000px; margin:auto; }
 input { font-size:28px; padding:15px; width:90%; margin:10px 0; }
@@ -38,7 +17,15 @@ button { font-size:18px; padding:8px 12px; margin:5px; cursor:pointer; }
 .bad { color:red; }
 .warn { color:orange; }
 .hidden { display:none !important; }
-.problem { background:#fee2e2; padding:10px; margin:5px 0; }
+
+.scanInput {
+  font-size:32px;
+  padding:18px;
+  width:90%;
+  border:3px solid #2563eb;
+  border-radius:14px;
+}
+
 .fullBtn {
   width:90%;
   font-size:24px;
@@ -48,6 +35,7 @@ button { font-size:18px; padding:8px 12px; margin:5px; cursor:pointer; }
   border:none;
   border-radius:10px;
 }
+
 table { width:100%; border-collapse:collapse; margin-top:10px; font-size:17px; }
 th, td { border:1px solid #ddd; padding:10px; text-align:left; }
 th { background:#e5e7eb; }
@@ -64,20 +52,12 @@ tr.missing { background:white; }
   box-shadow:0 10px 35px rgba(0,0,0,.08);
   box-sizing:border-box;
 }
-.loginLogo {
-  text-align:center;
-  margin-bottom:15px;
-}
-
-.loginLogo img {
-  width:90px;
-  height:auto;
-  display:block;
-  margin:0 auto;
-}
+.loginLogo { text-align:center; margin-bottom:15px; }
+.loginLogo img { width:90px; height:auto; display:block; margin:0 auto; }
 .loginCard h1 { text-align:center; margin:0; font-size:32px; }
 .loginSubtitle { text-align:center; color:#6b7280; margin-bottom:28px; }
 .loginCard label { display:block; font-weight:bold; margin-top:16px; margin-bottom:6px; }
+
 .loginInput {
   width:100%;
   font-size:22px;
@@ -88,6 +68,7 @@ tr.missing { background:white; }
   box-sizing:border-box;
 }
 .loginInput:focus { outline:none; border-color:#2563eb; }
+
 .loginBtn {
   width:100%;
   margin-top:24px;
@@ -100,6 +81,7 @@ tr.missing { background:white; }
   font-weight:bold;
 }
 .loginBtn:disabled { opacity:.6; cursor:not-allowed; }
+
 .loginStatus {
   margin-top:18px;
   padding:12px;
@@ -110,43 +92,18 @@ tr.missing { background:white; }
 .loginStatus.error { display:block; background:#fee2e2; color:#991b1b; }
 .loginStatus.ok { display:block; background:#dcfce7; color:#166534; }
 
-.modalBg {
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.55);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:999;
-}
-.modal {
-  background:white;
-  padding:28px;
-  border-radius:18px;
-  width:90%;
-  max-width:650px;
-}
-.modalBtn {
-  width:100%;
-  font-size:22px;
-  padding:15px;
-  margin:8px 0;
-  border-radius:10px;
-}
-  .trayIcon {
+.trayIcon {
   width:46px;
   height:auto;
   vertical-align:middle;
   margin-left:10px;
 }
-.btnCancel { background:#e5e7eb; }
-.btnReplace { background:#f97316; color:white; border:none; }
-.btnAnother { background:#2563eb; color:white; border:none; }
-  .bagHeaderRow {
+
+.bagHeaderRow {
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin:25px 0 25px 0;
+  margin:25px 0;
 }
 
 .bagCodeBig {
@@ -157,10 +114,6 @@ tr.missing { background:white; }
 .expectedProgressBig {
   font-size:30px;
   font-weight:bold;
-}
-
-.expectedTitle {
-  display:none;
 }
 
 .expectedTable table {
@@ -225,6 +178,42 @@ tr.missing { background:white; }
   line-height:1.45;
 }
 
+.problemBox button {
+  font-size:16px;
+  padding:6px 12px;
+  margin-left:8px;
+}
+
+.modalBg {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:999;
+}
+
+.modal {
+  background:white;
+  padding:28px;
+  border-radius:18px;
+  width:90%;
+  max-width:650px;
+}
+
+.modalBtn {
+  width:100%;
+  font-size:22px;
+  padding:15px;
+  margin:8px 0;
+  border-radius:10px;
+}
+
+.btnCancel { background:#e5e7eb; }
+.btnReplace { background:#f97316; color:white; border:none; }
+.btnAnother { background:#2563eb; color:white; border:none; }
+
 @media(max-width:800px){
   .bagHeaderRow {
     flex-direction:column;
@@ -243,8 +232,9 @@ tr.missing { background:white; }
 
 <div class="loginCard" id="loginScreen">
   <div class="loginLogo">
-  <img src="logo.png" alt="logo">
-</div>
+    <img src="logo.png" alt="logo">
+  </div>
+
   <h1>Pakowanie Toreb</h1>
   <p class="loginSubtitle">Zaloguj się, aby rozpocząć skanowanie</p>
 
@@ -260,10 +250,6 @@ tr.missing { background:white; }
 </div>
 
 <div class="card hidden" id="bagScreen">
-  <div class="loginLogo">
-    <img src="logo.png" alt="logo">
-  </div>
-
   <h1>Zeskanuj torbę</h1>
   <input id="bagInput" class="scanInput" placeholder="Zeskanuj kod torby" autofocus>
   <p id="bagStatus"></p>
@@ -271,23 +257,23 @@ tr.missing { background:white; }
 
 <div class="card hidden" id="trayScreen">
   <h1>Skanowanie tacek <img src="tacka.png" class="trayIcon" alt="tacka"></h1>
-  <div class="bagHeaderRow">
-  <div class="bagCodeBig" id="currentBagLabel"></div>
-  <div class="expectedProgressBig">Oczekiwane tacki <span id="expectedProgress">0/0</span></div>
-</div>
 
-<input id="trayInput" class="scanInput" placeholder="Zeskanuj kod tacki">
+  <div class="bagHeaderRow">
+    <div class="bagCodeBig" id="currentBagLabel"></div>
+    <div class="expectedProgressBig">Oczekiwane tacki <span id="expectedProgress">0/0</span></div>
+  </div>
+
+  <input id="trayInput" class="scanInput" placeholder="Zeskanuj kod tacki">
 
   <br>
   <button class="fullBtn" onclick="closeBagBad()">❌ Zamknij jako niepoprawną</button>
 
   <p id="status"></p>
 
-
   <div id="expectedList" class="expectedTable"></div>
 
-<h2 class="problemsTitle">Problemy</h2>
-<div id="problems"></div>
+  <h2 class="problemsTitle">Problemy</h2>
+  <div id="problems"></div>
 </div>
 
 <div id="duplicateBagModal" class="modalBg hidden">
@@ -295,19 +281,12 @@ tr.missing { background:white; }
     <h2>⚠️ Torba była już pakowana</h2>
     <p id="duplicateBagInfo"></p>
 
-    <button class="modalBtn btnCancel" onclick="cancelDuplicateBag()">
-      Anuluj i wróć do skanowania toreb
-    </button>
-
-    <button class="modalBtn btnReplace" onclick="replaceOldBagSession()">
-      Pakuj ponownie i usuń stary zapis
-    </button>
-
-    <button class="modalBtn btnAnother" onclick="packAnotherSameBag()">
-      Pakuj kolejną z tym samym kodem
-    </button>
+    <button class="modalBtn btnCancel" onclick="cancelDuplicateBag()">Anuluj i wróć do skanowania toreb</button>
+    <button class="modalBtn btnReplace" onclick="replaceOldBagSession()">Pakuj ponownie i usuń stary zapis</button>
+    <button class="modalBtn btnAnother" onclick="packAnotherSameBag()">Pakuj kolejną z tym samym kodem</button>
   </div>
 </div>
+
 <div id="mealModal" class="modalBg hidden">
   <div class="modal">
     <h2>Szczegóły posiłku</h2>
@@ -315,6 +294,7 @@ tr.missing { background:white; }
     <button class="modalBtn btnCancel" onclick="closeMealDetails()">Zamknij</button>
   </div>
 </div>
+
 <script>
 const supabaseClient = window.supabase.createClient(
   "https://lanmmbpqxmenyjwvwpkt.supabase.co",
@@ -322,6 +302,22 @@ const supabaseClient = window.supabase.createClient(
 );
 
 const LOGIN_DOMAIN = "@pakowanie.local";
+
+let currentUser = null;
+let currentBag = null;
+let expectedItems = [];
+let scanned = [];
+let wrong = [];
+let duplicates = [];
+let startedAt = null;
+let isClosing = false;
+
+let pendingBag = null;
+let pendingBagData = [];
+let existingBagSessions = [];
+
+let audioCtx = null;
+
 async function getUserRole(userId) {
   const { data, error } = await supabaseClient
     .from("user_roles")
@@ -329,19 +325,15 @@ async function getUserRole(userId) {
     .eq("user_id", userId)
     .single();
 
-  if (error || !data) {
-    return null;
-  }
-
+  if (error || !data) return null;
   return data.role;
 }
 
 function hasAccess(role, allowedRoles) {
   return allowedRoles.includes(role);
 }
-let currentUser = null;
-let currentBag = null;
-  function showMealDetails(index) {
+
+function showMealDetails(index) {
   const item = expectedItems[index];
   if (!item) return;
 
@@ -360,18 +352,6 @@ let currentBag = null;
 function closeMealDetails() {
   mealModal.classList.add("hidden");
 }
-let expectedItems = [];
-let scanned = [];
-let wrong = [];
-let duplicates = [];
-let startedAt = null;
-let isClosing = false;
-
-let pendingBag = null;
-let pendingBagData = [];
-let existingBagSessions = [];
-
-let audioCtx = null;
 
 function sound(type) {
   try {
@@ -386,6 +366,7 @@ function sound(type) {
     }
   } catch(e) {}
 }
+
 function keepFocus(input) {
   document.addEventListener("click", () => {
     if (!input.classList.contains("hidden")) {
@@ -393,7 +374,7 @@ function keepFocus(input) {
     }
   });
 }
-  
+
 function playTone(freq, volume, duration) {
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
@@ -427,7 +408,7 @@ function showOnly(id) {
   });
   document.getElementById(id).classList.remove("hidden");
 }
-  
+
 function focusBagInput() {
   setTimeout(() => {
     bagInput.focus();
@@ -449,21 +430,11 @@ function getLoginEmail(loginValue) {
 function translateLoginError(errorMessage) {
   const msg = String(errorMessage || "").toLowerCase();
 
-  if (msg.includes("invalid login credentials")) {
-    return "Nieprawidłowy login lub hasło.";
-  }
-  if (msg.includes("email not confirmed")) {
-    return "Konto nie zostało potwierdzone. Sprawdź użytkownika w Supabase.";
-  }
-  if (msg.includes("user not found")) {
-    return "Nieznany użytkownik.";
-  }
-  if (msg.includes("invalid email")) {
-    return "Nieprawidłowy login.";
-  }
-  if (msg.includes("network") || msg.includes("failed to fetch")) {
-    return "Brak połączenia z internetem lub bazą danych.";
-  }
+  if (msg.includes("invalid login credentials")) return "Nieprawidłowy login lub hasło.";
+  if (msg.includes("email not confirmed")) return "Konto nie zostało potwierdzone. Sprawdź użytkownika w Supabase.";
+  if (msg.includes("user not found")) return "Nieznany użytkownik.";
+  if (msg.includes("invalid email")) return "Nieprawidłowy login.";
+  if (msg.includes("network") || msg.includes("failed to fetch")) return "Brak połączenia z internetem lub bazą danych.";
 
   return "Nie udało się zalogować. Sprawdź login i hasło.";
 }
@@ -504,13 +475,6 @@ async function login() {
     return;
   }
 
-  if (loginValue.includes("@") && !loginValue.includes(".")) {
-    showLoginMessage("Email wygląda nieprawidłowo.");
-    sound("bad");
-    email.focus();
-    return;
-  }
-
   if (!passwordValue) {
     showLoginMessage("Wpisz hasło.");
     sound("bad");
@@ -535,23 +499,23 @@ async function login() {
     return;
   }
 
-currentUser = data.user;
+  currentUser = data.user;
 
-const role = await getUserRole(currentUser.id);
+  const role = await getUserRole(currentUser.id);
 
-if (!hasAccess(role, ["worker", "manager", "admin"])) {
-  showLoginMessage("Brak dostępu do pakowania.");
-  sound("bad");
-  return;
-}
+  if (!hasAccess(role, ["worker", "manager", "admin"])) {
+    showLoginMessage("Brak dostępu do pakowania.");
+    sound("bad");
+    return;
+  }
 
-showLoginMessage("Zalogowano pomyślnie.", "ok");
-sound("ok");
+  showLoginMessage("Zalogowano pomyślnie.", "ok");
+  sound("ok");
 
   setTimeout(() => {
-  showOnly("bagScreen");
-  focusBagInput();
-}, 400);
+    showOnly("bagScreen");
+    focusBagInput();
+  }, 400);
 }
 
 async function loadBag() {
@@ -709,23 +673,23 @@ function render() {
     <table>
       <thead>
         <tr>
-<th>Posiłek</th>
-<th>Kod</th>
-<th>Rozmiar</th>
+          <th>Posiłek</th>
+          <th>Kod</th>
+          <th>Rozmiar</th>
         </tr>
       </thead>
       <tbody>
-        ${expectedItems.map(i => {
+        ${expectedItems.map((i, index) => {
           const done = correct.includes(normalizeCode(i.tray_qr));
           return `
             <tr class="${done ? "done" : "missing"}">
               <td>
-  <span class="mealClick" onclick="showMealDetails(${expectedItems.indexOf(i)})">
-    ${i.meal || ""}
-  </span>
-</td>
-<td>${i.code || ""}</td>
-<td>${i.size || ""}</td>
+                <span class="mealClick" onclick="showMealDetails(${index})">
+                  ${i.meal || ""}
+                </span>
+              </td>
+              <td>${i.code || ""}</td>
+              <td>${i.size || ""}</td>
             </tr>
           `;
         }).join("")}
@@ -733,43 +697,44 @@ function render() {
     </table>
   `;
 
-problems.innerHTML = `
-  <div class="problemsGrid">
+  problems.innerHTML = `
+    <div class="problemsGrid">
 
-    <div class="problemBox">
-      <div class="problemBoxHeader">Brakujące:</div>
-      <div class="problemBoxBody">
-        ${missing.length ? missing.map(x => x.tray_qr).join("<br>") : "-"}
+      <div class="problemBox">
+        <div class="problemBoxHeader">Brakujące:</div>
+        <div class="problemBoxBody">
+          ${missing.length ? missing.map(x => x.tray_qr).join("<br>") : "-"}
+        </div>
       </div>
-    </div>
 
-    <div class="problemBox">
-      <div class="problemBoxHeader">Błędne:</div>
-      <div class="problemBoxBody">
-        ${wrong.length ? wrong.map((x, i) => `
-          <div>
-            ${x}
-            <button onclick="removeWrong(${i})">Usuń</button>
-          </div>
-        `).join("") : "-"}
+      <div class="problemBox">
+        <div class="problemBoxHeader">Błędne:</div>
+        <div class="problemBoxBody">
+          ${wrong.length ? wrong.map((x, i) => `
+            <div>
+              ${x}
+              <button onclick="removeWrong(${i})">Usuń</button>
+            </div>
+          `).join("") : "-"}
+        </div>
       </div>
-    </div>
 
-    <div class="problemBox">
-      <div class="problemBoxHeader">Duplikaty:</div>
-      <div class="problemBoxBody">
-        ${duplicates.length ? duplicates.map((x, i) => `
-          <div>
-            ${x}
-            <button onclick="removeDuplicate(${i})">Usuń</button>
-          </div>
-        `).join("") : "-"}
+      <div class="problemBox">
+        <div class="problemBoxHeader">Duplikaty:</div>
+        <div class="problemBoxBody">
+          ${duplicates.length ? duplicates.map((x, i) => `
+            <div>
+              ${x}
+              <button onclick="removeDuplicate(${i})">Usuń</button>
+            </div>
+          `).join("") : "-"}
+        </div>
       </div>
-    </div>
 
-  </div>
-`;
+    </div>
+  `;
 }
+
 async function scanTray() {
   const val = trayInput.value.trim();
   if (!val || isClosing) return;
@@ -903,896 +868,9 @@ function reset() {
   status.innerText = "";
 
   showOnly("bagScreen");
-  setTimeout(() => bagInput.focus(), 100);
-}
-keepFocus(bagInput);
-keepFocus(trayInput);
-</script>
-
-</body>
-</html>
-  padding:18px;
-  width:90%;
-  border:3px solid #2563eb;
-  border-radius:14px;
-}
-  .mealClick {
-  cursor:pointer;
-  text-decoration:underline;
-  opacity:0.7;
-}
-body { font-family: Arial; padding:20px; background:#f3f4f6; }
-.card { background:white; padding:25px; border-radius:18px; max-width:1000px; margin:auto; }
-input { font-size:28px; padding:15px; width:90%; margin:10px 0; }
-button { font-size:18px; padding:8px 12px; margin:5px; cursor:pointer; }
-#status { font-size:30px; font-weight:bold; margin-top:20px; }
-.ok { color:green; }
-.bad { color:red; }
-.warn { color:orange; }
-.hidden { display:none !important; }
-.problem { background:#fee2e2; padding:10px; margin:5px 0; }
-.fullBtn {
-  width:90%;
-  font-size:24px;
-  padding:15px;
-  background:#ef4444;
-  color:white;
-  border:none;
-  border-radius:10px;
-}
-table { width:100%; border-collapse:collapse; margin-top:10px; font-size:17px; }
-th, td { border:1px solid #ddd; padding:10px; text-align:left; }
-th { background:#e5e7eb; }
-tr.done { background:#dcfce7; }
-tr.missing { background:white; }
-
-.loginCard {
-  background:white;
-  padding:36px;
-  border-radius:24px;
-  width:100%;
-  max-width:520px;
-  margin:40px auto;
-  box-shadow:0 10px 35px rgba(0,0,0,.08);
-  box-sizing:border-box;
-}
-.loginLogo {
-  text-align:center;
-  margin-bottom:15px;
-}
-
-.loginLogo img {
-  width:90px;
-  height:auto;
-  display:block;
-  margin:0 auto;
-}
-.loginCard h1 { text-align:center; margin:0; font-size:32px; }
-.loginSubtitle { text-align:center; color:#6b7280; margin-bottom:28px; }
-.loginCard label { display:block; font-weight:bold; margin-top:16px; margin-bottom:6px; }
-.loginInput {
-  width:100%;
-  font-size:22px;
-  padding:14px;
-  border-radius:12px;
-  border:2px solid #d1d5db;
-  margin:0;
-  box-sizing:border-box;
-}
-.loginInput:focus { outline:none; border-color:#2563eb; }
-.loginBtn {
-  width:100%;
-  margin-top:24px;
-  font-size:24px;
-  padding:16px;
-  border-radius:14px;
-  border:none;
-  background:#2563eb;
-  color:white;
-  font-weight:bold;
-}
-.loginBtn:disabled { opacity:.6; cursor:not-allowed; }
-.loginStatus {
-  margin-top:18px;
-  padding:12px;
-  border-radius:12px;
-  font-weight:bold;
-  display:none;
-}
-.loginStatus.error { display:block; background:#fee2e2; color:#991b1b; }
-.loginStatus.ok { display:block; background:#dcfce7; color:#166534; }
-
-.modalBg {
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.55);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:999;
-}
-.modal {
-  background:white;
-  padding:28px;
-  border-radius:18px;
-  width:90%;
-  max-width:650px;
-}
-.modalBtn {
-  width:100%;
-  font-size:22px;
-  padding:15px;
-  margin:8px 0;
-  border-radius:10px;
-}
-  .trayIcon {
-  width:46px;
-  height:auto;
-  vertical-align:middle;
-  margin-left:10px;
-}
-.btnCancel { background:#e5e7eb; }
-.btnReplace { background:#f97316; color:white; border:none; }
-.btnAnother { background:#2563eb; color:white; border:none; }
-  .bagHeaderRow {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin:25px 0 25px 0;
-}
-
-.bagCodeBig {
-  font-size:32px;
-  font-weight:bold;
-}
-
-.expectedProgressBig {
-  font-size:30px;
-  font-weight:bold;
-}
-
-.expectedTitle {
-  display:none;
-}
-
-.expectedTable table {
-  font-size:28px;
-}
-
-.expectedTable th {
-  text-align:center;
-  font-size:24px;
-  padding:18px;
-}
-
-.expectedTable td {
-  text-align:center;
-  font-size:32px;
-  font-weight:bold;
-  padding:22px;
-}
-
-.mealClick {
-  cursor:pointer;
-  font-weight:bold;
-  text-decoration:underline;
-  text-underline-offset:4px;
-}
-
-.mealClick:hover {
-  opacity:.7;
-}
-
-.problemsTitle {
-  text-align:center;
-  font-size:36px;
-  margin-top:34px;
-  margin-bottom:24px;
-}
-
-.problemsGrid {
-  display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:16px;
-}
-
-.problemBox {
-  border:1px solid #d1d5db;
-  border-radius:10px;
-  overflow:hidden;
-  min-height:150px;
-  background:white;
-  text-align:center;
-  font-size:24px;
-}
-
-.problemBoxHeader {
-  background:#e5e7eb;
-  padding:14px;
-  font-weight:bold;
-}
-
-.problemBoxBody {
-  padding:18px;
-  line-height:1.45;
-}
-
-@media(max-width:800px){
-  .bagHeaderRow {
-    flex-direction:column;
-    align-items:flex-start;
-    gap:10px;
-  }
-
-  .problemsGrid {
-    grid-template-columns:1fr;
-  }
-}
-</style>
-</head>
-
-<body>
-
-<div class="loginCard" id="loginScreen">
-  <div class="loginLogo">
-  <img src="logo.png" alt="logo">
-</div>
-  <h1>Pakowanie Toreb</h1>
-  <p class="loginSubtitle">Zaloguj się, aby rozpocząć skanowanie</p>
-
-  <label>Login pracownika</label>
-  <input id="email" class="loginInput" placeholder="np. JanKowalski">
-
-  <label>Hasło</label>
-  <input id="password" class="loginInput" type="password" placeholder="Wpisz hasło">
-
-  <button id="loginBtn" class="loginBtn" onclick="login()">Zaloguj</button>
-
-  <p id="loginStatus" class="loginStatus"></p>
-</div>
-
-<div class="card hidden" id="bagScreen">
-  <h1> Zeskanuj torbę</h1>
-  <input id="bagInput" class="scanInput" placeholder="Zeskanuj kod torby" autofocus>
-  <p id="bagStatus"></p>
-</div>
-
-<div class="card hidden" id="trayScreen">
-  <h1>Skanowanie tacek <img src="tacka.png" class="trayIcon" alt="tacka"></h1>
-  <div class="bagHeaderRow">
-  <div class="bagCodeBig" id="currentBagLabel"></div>
-  <div class="expectedProgressBig">Oczekiwane tacki <span id="expectedProgress">0/0</span></div>
-</div>
-
-<input id="trayInput" class="scanInput" placeholder="Zeskanuj kod tacki">
-
-  <br>
-  <button class="fullBtn" onclick="closeBagBad()">❌ Zamknij jako niepoprawną</button>
-
-  <p id="status"></p>
-
-
-  <div id="expectedList" class="expectedTable"></div>
-
-<h2 class="problemsTitle">Problemy</h2>
-<div id="problems"></div>
-</div>
-
-<div id="duplicateBagModal" class="modalBg hidden">
-  <div class="modal">
-    <h2>⚠️ Torba była już pakowana</h2>
-    <p id="duplicateBagInfo"></p>
-
-    <button class="modalBtn btnCancel" onclick="cancelDuplicateBag()">
-      Anuluj i wróć do skanowania toreb
-    </button>
-
-    <button class="modalBtn btnReplace" onclick="replaceOldBagSession()">
-      Pakuj ponownie i usuń stary zapis
-    </button>
-
-    <button class="modalBtn btnAnother" onclick="packAnotherSameBag()">
-      Pakuj kolejną z tym samym kodem
-    </button>
-  </div>
-</div>
-<div id="mealModal" class="modalBg hidden">
-  <div class="modal">
-    <h2>Szczegóły posiłku</h2>
-    <p id="mealDetails"></p>
-    <button class="modalBtn btnCancel" onclick="closeMealDetails()">Zamknij</button>
-  </div>
-</div>
-<script>
-const supabaseClient = window.supabase.createClient(
-  "https://lanmmbpqxmenyjwvwpkt.supabase.co",
-  "sb_publishable_sYrinkI1u2zr9uXZwsERNg_HE0wQKsC"
-);
-
-const LOGIN_DOMAIN = "@pakowanie.local";
-async function getUserRole(userId) {
-  const { data, error } = await supabaseClient
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .single();
-
-  if (error || !data) {
-    return null;
-  }
-
-  return data.role;
-}
-
-function hasAccess(role, allowedRoles) {
-  return allowedRoles.includes(role);
-}
-let currentUser = null;
-let currentBag = null;
-  function showMealDetails(index) {
-  const item = expectedItems[index];
-  if (!item) return;
-
-  mealDetails.innerHTML = `
-    <b>Posiłek:</b> ${item.meal || "-"}<br>
-    <b>Kod:</b> ${item.code || "-"}<br>
-    <b>Rozmiar:</b> ${item.size || "-"}<br>
-    <b>QR tacki:</b> ${item.tray_qr || "-"}<br><br>
-    <b>Nazwa dania:</b><br>
-    ${item.dish_name || "-"}
-  `;
-
-  mealModal.classList.remove("hidden");
-}
-
-function closeMealDetails() {
-  mealModal.classList.add("hidden");
-}
-let expectedItems = [];
-let scanned = [];
-let wrong = [];
-let duplicates = [];
-let startedAt = null;
-let isClosing = false;
-
-let pendingBag = null;
-let pendingBagData = [];
-let existingBagSessions = [];
-
-let audioCtx = null;
-
-function sound(type) {
-  try {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-    if (type === "ok") playTone(900, 0.08, 0.08);
-    if (type === "bad") playTone(180, 0.18, 1.25);
-    if (type === "warn") playTone(450, 0.12, 0.18);
-    if (type === "done") {
-      playTone(1000, 0.09, 0.10);
-      setTimeout(() => playTone(1300, 0.09, 0.12), 120);
-    }
-  } catch(e) {}
-}
-function keepFocus(input) {
-  document.addEventListener("click", () => {
-    if (!input.classList.contains("hidden")) {
-      setTimeout(() => input.focus(), 50);
-    }
-  });
-}
-  
-function playTone(freq, volume, duration) {
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.frequency.value = freq;
-  gain.gain.value = volume;
-  osc.start();
-  osc.stop(audioCtx.currentTime + duration);
-}
-
-function normalizeCode(value) {
-  return String(value || "")
-    .trim()
-    .toUpperCase()
-    .replace(/\s+/g, "")
-    .replaceAll("Ś","S")
-    .replaceAll("Ą","A")
-    .replaceAll("Ć","C")
-    .replaceAll("Ę","E")
-    .replaceAll("Ł","L")
-    .replaceAll("Ń","N")
-    .replaceAll("Ó","O")
-    .replaceAll("Ź","Z")
-    .replaceAll("Ż","Z");
-}
-
-function showOnly(id) {
-  ["loginScreen","bagScreen","trayScreen"].forEach(x => {
-    document.getElementById(x).classList.add("hidden");
-  });
-  document.getElementById(id).classList.remove("hidden");
-}
-  
-function focusBagInput() {
-  setTimeout(() => {
-    bagInput.focus();
-    bagInput.click();
-  }, 50);
-
-  setTimeout(() => {
-    bagInput.focus();
-  }, 300);
-}
-
-function getLoginEmail(loginValue) {
-  const value = String(loginValue || "").trim().toLowerCase();
-  if (!value) return "";
-  if (value.includes("@")) return value;
-  return value + LOGIN_DOMAIN;
-}
-
-function translateLoginError(errorMessage) {
-  const msg = String(errorMessage || "").toLowerCase();
-
-  if (msg.includes("invalid login credentials")) {
-    return "Nieprawidłowy login lub hasło.";
-  }
-  if (msg.includes("email not confirmed")) {
-    return "Konto nie zostało potwierdzone. Sprawdź użytkownika w Supabase.";
-  }
-  if (msg.includes("user not found")) {
-    return "Nieznany użytkownik.";
-  }
-  if (msg.includes("invalid email")) {
-    return "Nieprawidłowy login.";
-  }
-  if (msg.includes("network") || msg.includes("failed to fetch")) {
-    return "Brak połączenia z internetem lub bazą danych.";
-  }
-
-  return "Nie udało się zalogować. Sprawdź login i hasło.";
-}
-
-function showLoginMessage(text, type = "error") {
-  loginStatus.innerText = text;
-  loginStatus.className = "loginStatus " + type;
-}
-
-email.addEventListener("keydown", e => {
-  if (e.key === "Enter") password.focus();
-});
-
-password.addEventListener("keydown", e => {
-  if (e.key === "Enter") login();
-});
-
-bagInput.addEventListener("keydown", e => {
-  if (e.key === "Enter") loadBag();
-});
-
-trayInput.addEventListener("keydown", e => {
-  if (e.key === "Enter") scanTray();
-});
-
-async function login() {
-  const loginValue = email.value.trim();
-  const passwordValue = password.value;
-  const emailValue = getLoginEmail(loginValue);
-
-  loginStatus.className = "loginStatus";
-  loginStatus.innerText = "";
-
-  if (!loginValue) {
-    showLoginMessage("Wpisz login pracownika.");
-    sound("bad");
-    email.focus();
-    return;
-  }
-
-  if (loginValue.includes("@") && !loginValue.includes(".")) {
-    showLoginMessage("Email wygląda nieprawidłowo.");
-    sound("bad");
-    email.focus();
-    return;
-  }
-
-  if (!passwordValue) {
-    showLoginMessage("Wpisz hasło.");
-    sound("bad");
-    password.focus();
-    return;
-  }
-
-  loginBtn.disabled = true;
-  loginBtn.innerText = "Loguję...";
-
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
-    email: emailValue,
-    password: passwordValue
-  });
-
-  loginBtn.disabled = false;
-  loginBtn.innerText = "Zaloguj";
-
-  if (error) {
-    showLoginMessage(translateLoginError(error.message));
-    sound("bad");
-    return;
-  }
-
-currentUser = data.user;
-
-const role = await getUserRole(currentUser.id);
-
-if (!hasAccess(role, ["worker", "manager", "admin"])) {
-  showLoginMessage("Brak dostępu do pakowania.");
-  sound("bad");
-  return;
-}
-
-showLoginMessage("Zalogowano pomyślnie.", "ok");
-sound("ok");
-
-  setTimeout(() => {
-  showOnly("bagScreen");
-  focusBagInput();
-}, 400);
-}
-
-async function loadBag() {
-  const bag = bagInput.value.trim();
-  if (!bag) return;
-
-  bagStatus.innerText = "Sprawdzam torbę...";
-
-  const { data, error } = await supabaseClient
-    .from("packing_plan")
-    .select("*")
-    .eq("bag_qr", bag);
-
-  if (error || !data || !data.length) {
-    bagStatus.innerText = "❌ Brak torby";
-    bagInput.value = "";
-    bagInput.focus();
-    sound("bad");
-    return;
-  }
-
-  const { data: sessions, error: sessionError } = await supabaseClient
-    .from("packing_sessions")
-    .select("*")
-    .eq("bag_qr", bag)
-    .order("closed_at", { ascending: false });
-
-  if (sessionError) {
-    bagStatus.innerText = "❌ Błąd sprawdzania historii torby";
-    sound("bad");
-    return;
-  }
-
-  if (sessions && sessions.length > 0) {
-    pendingBag = bag;
-    pendingBagData = data;
-    existingBagSessions = sessions;
-
-    const last = sessions[0];
-
-    duplicateBagInfo.innerHTML = `
-      Kod torby: <b>${bag}</b><br><br>
-      Ostatni zapis:<br>
-      Status: <b>${last.status || "-"}</b><br>
-      Pracownik: <b>${last.user_login || "-"}</b><br>
-      Zamknięto: <b>${last.closed_at ? new Date(last.closed_at).toLocaleString("pl-PL") : "-"}</b><br><br>
-      Liczba wcześniejszych zapisów tej torby: <b>${sessions.length}</b>
-    `;
-
-    duplicateBagModal.classList.remove("hidden");
-    bagStatus.innerText = "";
-    sound("bad");
-    return;
-  }
-
-  startBagPacking(bag, data);
-}
-
-function startBagPacking(bag, data) {
-  currentBag = bag;
-  expectedItems = data;
-  scanned = [];
-  wrong = [];
-  duplicates = [];
-  startedAt = new Date();
-  isClosing = false;
-
-  currentBagLabel.innerText = bag;
-  bagInput.value = "";
-  bagStatus.innerText = "";
-  status.innerText = "Skanuj tacki";
-  status.className = "";
-
-  showOnly("trayScreen");
-  render();
-  sound("ok");
-  setTimeout(() => trayInput.focus(), 100);
-}
-
-function cancelDuplicateBag() {
-  pendingBag = null;
-  pendingBagData = [];
-  existingBagSessions = [];
-
-  duplicateBagModal.classList.add("hidden");
-  bagInput.value = "";
-  bagStatus.innerText = "";
-  showOnly("bagScreen");
   focusBagInput();
 }
 
-async function replaceOldBagSession() {
-  if (!pendingBag) return;
-
-  duplicateBagModal.classList.add("hidden");
-  bagStatus.innerText = "Usuwam stare zapisy...";
-
-  const { error } = await supabaseClient
-    .from("packing_sessions")
-    .delete()
-    .eq("bag_qr", pendingBag);
-
-  if (error) {
-    bagStatus.innerText = "❌ Nie udało się usunąć starego zapisu: " + error.message;
-    sound("bad");
-    return;
-  }
-
-  const bag = pendingBag;
-  const data = pendingBagData;
-
-  pendingBag = null;
-  pendingBagData = [];
-  existingBagSessions = [];
-
-  startBagPacking(bag, data);
-}
-
-function packAnotherSameBag() {
-  if (!pendingBag) return;
-
-  duplicateBagModal.classList.add("hidden");
-
-  const bag = pendingBag;
-  const data = pendingBagData;
-
-  pendingBag = null;
-  pendingBagData = [];
-  existingBagSessions = [];
-
-  startBagPacking(bag, data);
-}
-
-function getExpectedNormalized() {
-  return expectedItems.map(x => normalizeCode(x.tray_qr));
-}
-
-function getCorrect() {
-  const expected = getExpectedNormalized();
-  return [...new Set(scanned.map(normalizeCode).filter(x => expected.includes(x)))];
-}
-
-function getMissing() {
-  const correct = getCorrect();
-  return expectedItems.filter(x => !correct.includes(normalizeCode(x.tray_qr)));
-}
-
-function render() {
-  const correct = getCorrect();
-  const missing = getMissing();
-
-  expectedProgress.innerText = correct.length + "/" + expectedItems.length;
-
-  expectedList.innerHTML = `
-    <table>
-      <thead>
-        <tr>
-<th>Posiłek</th>
-<th>Kod</th>
-<th>Rozmiar</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${expectedItems.map(i => {
-          const done = correct.includes(normalizeCode(i.tray_qr));
-          return `
-            <tr class="${done ? "done" : "missing"}">
-              <td>
-  <span class="mealClick" onclick="showMealDetails(${expectedItems.indexOf(i)})">
-    ${i.meal || ""}
-  </span>
-</td>
-<td>${i.code || ""}</td>
-<td>${i.size || ""}</td>
-            </tr>
-          `;
-        }).join("")}
-      </tbody>
-    </table>
-  `;
-
-problems.innerHTML = `
-  <div class="problemsGrid">
-
-    <div class="problemBox">
-      <div class="problemBoxHeader">Brakujące:</div>
-      <div class="problemBoxBody">
-        ${missing.length ? missing.map(x => x.tray_qr).join("<br>") : "-"}
-      </div>
-    </div>
-
-    <div class="problemBox">
-      <div class="problemBoxHeader">Błędne:</div>
-      <div class="problemBoxBody">
-        ${wrong.length ? wrong.map((x, i) => `
-          <div>
-            ${x}
-            <button onclick="removeWrong(${i})">Usuń</button>
-          </div>
-        `).join("") : "-"}
-      </div>
-    </div>
-
-    <div class="problemBox">
-      <div class="problemBoxHeader">Duplikaty:</div>
-      <div class="problemBoxBody">
-        ${duplicates.length ? duplicates.map((x, i) => `
-          <div>
-            ${x}
-            <button onclick="removeDuplicate(${i})">Usuń</button>
-          </div>
-        `).join("") : "-"}
-      </div>
-    </div>
-
-  </div>
-`;
-}
-async function scanTray() {
-  const val = trayInput.value.trim();
-  if (!val || isClosing) return;
-
-  const tray = normalizeCode(val);
-  const expected = getExpectedNormalized();
-
-  if (scanned.map(normalizeCode).includes(tray)) {
-    duplicates.push(val);
-    status.innerText = "⚠️ Duplikat: " + val;
-    status.className = "warn";
-    trayInput.value = "";
-    render();
-    trayInput.focus();
-    sound("bad");
-    return;
-  }
-
-  scanned.push(val);
-
-  if (!expected.includes(tray)) {
-    wrong.push(val);
-    status.innerText = "❌ Zła tacka: " + val;
-    status.className = "bad";
-    trayInput.value = "";
-    render();
-    trayInput.focus();
-    sound("bad");
-    return;
-  }
-
-  status.innerText = "✅ OK: " + val;
-  status.className = "ok";
-
-  trayInput.value = "";
-  render();
-  trayInput.focus();
-  sound("ok");
-
-  await checkAutoClose();
-}
-
-function removeWrong(index) {
-  const removed = wrong[index];
-  wrong.splice(index, 1);
-
-  const normalizedRemoved = normalizeCode(removed);
-  const scannedIndex = scanned.findIndex(x => normalizeCode(x) === normalizedRemoved);
-  if (scannedIndex >= 0) scanned.splice(scannedIndex, 1);
-
-  status.innerText = "Usunięto błędną tackę: " + removed;
-  status.className = "warn";
-
-  render();
-  checkAutoClose();
-}
-
-function removeDuplicate(index) {
-  const removed = duplicates[index];
-  duplicates.splice(index, 1);
-
-  status.innerText = "Usunięto duplikat: " + removed;
-  status.className = "warn";
-
-  render();
-  checkAutoClose();
-}
-
-async function checkAutoClose() {
-  if (
-    currentBag &&
-    !isClosing &&
-    getMissing().length === 0 &&
-    wrong.length === 0 &&
-    duplicates.length === 0
-  ) {
-    await closeBagCorrect();
-  }
-}
-
-async function closeBagCorrect() {
-  isClosing = true;
-  status.innerText = "🎉 TORBA GOTOWA";
-  status.className = "ok";
-  sound("done");
-
-  await save("POPRAWNA");
-
-  setTimeout(reset, 800);
-}
-
-async function closeBagBad() {
-  isClosing = true;
-  sound("done");
-  await save("NIEPRAWIDŁOWA");
-  reset();
-}
-
-async function save(st) {
-  const closedAt = new Date();
-  const durationSeconds = startedAt ? Math.round((closedAt - startedAt) / 1000) : null;
-
-  await supabaseClient.from("packing_sessions").insert({
-    bag_qr: currentBag,
-    user_id: currentUser.id,
-    user_login: currentUser.email,
-    status: st,
-    started_at: startedAt ? startedAt.toISOString() : new Date().toISOString(),
-    closed_at: closedAt.toISOString(),
-    expected_count: expectedItems.length,
-    correct_count: getCorrect().length,
-    all_scans: scanned.join(" | "),
-    missing_trays: getMissing().map(x => x.tray_qr).join(" | ") || "-",
-    wrong_trays: wrong.join(" | ") || "-",
-    duplicate_trays: duplicates.join(" | ") || "-",
-    duration_seconds: durationSeconds
-  });
-}
-
-function reset() {
-  currentBag = null;
-  expectedItems = [];
-  scanned = [];
-  wrong = [];
-  duplicates = [];
-  startedAt = null;
-  isClosing = false;
-
-  bagInput.value = "";
-  trayInput.value = "";
-  status.innerText = "";
-
-  showOnly("bagScreen");
-  setTimeout(() => bagInput.focus(), 100);
-}
 keepFocus(bagInput);
 keepFocus(trayInput);
 </script>
