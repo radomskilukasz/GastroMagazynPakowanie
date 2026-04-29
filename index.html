@@ -1,424 +1,507 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<link rel="icon" type="image/png" sizes="32x32" href="logo-removebg-preview.png">
-<link rel="icon" type="image/png" sizes="16x16" href="logo-removebg-preview.png">
-<meta charset="UTF-8">
-<title>Pakowanie Toreb</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="icon" type="image/png" sizes="32x32" href="logo-removebg-preview.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="logo-removebg-preview.png">
+  <meta charset="UTF-8">
+  <title>Pakowanie Toreb</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<style>
-body { font-family: Arial; padding:20px; background:#f3f4f6; }
-.card { background:white; padding:25px; border-radius:18px; max-width:1000px; margin:auto; }
-input { font-size:28px; padding:15px; width:90%; margin:10px 0; }
-button { font-size:18px; padding:8px 12px; margin:5px; cursor:pointer; }
-#status { font-size:30px; font-weight:bold; margin-top:20px; }
-.ok { color:green; }
-.bad { color:red; }
-.warn { color:orange; }
-.hidden { display:none !important; }
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding:20px;
+      background:#f3f4f6;
+    }
 
-.scanInput {
-  font-size:32px;
-  padding:18px;
-  width:90%;
-  border:3px solid #2563eb;
-  border-radius:14px;
-}
+    button {
+      font-size:18px;
+      padding:8px 12px;
+      margin:5px;
+      cursor:pointer;
+    }
 
-.fullBtn {
-  width:90%;
-  font-size:24px;
-  padding:15px;
-  background:#ef4444;
-  color:white;
-  border:none;
-  border-radius:10px;
-}
-.bagCard {
-  background:white;
-  padding:36px;
-  border-radius:24px;
-  width:100%;
-  max-width:620px;
-  margin:40px auto;
-  box-shadow:0 10px 35px rgba(0,0,0,.08);
-  box-sizing:border-box;
-}
+    table {
+      width:100%;
+      border-collapse:collapse;
+      margin-top:10px;
+      font-size:17px;
+    }
 
-.bagCard h1 {
-  text-align:center;
-  margin:0;
-  font-size:34px;
-}
+    th,
+    td {
+      border:1px solid #ddd;
+      padding:10px;
+      text-align:left;
+    }
 
-.bagSubtitle {
-  text-align:center;
-  color:#6b7280;
-  margin-top:8px;
-  margin-bottom:30px;
-  font-size:18px;
-}
-.actionButtons {
-  display:flex;
-  gap:12px;
-  margin:10px 0 14px;
-}
+    th {
+      background:#e5e7eb;
+    }
 
-.cancelBtn {
-  flex:1;
-  font-size:20px;
-  padding:16px;
-  border-radius:14px;
-  border:none;
-  background:#e5e7eb;
-  font-weight:bold;
-  cursor:pointer;
-}
+    tr.done {
+      background:#dcfce7;
+    }
 
-.cancelBtn:hover {
-  background:#d1d5db;
-}
+    tr.missing {
+      background:white;
+    }
 
-.fullBtn {
-  flex:2;
-}
-.bagLabel {
-  display:block;
-  font-weight:bold;
-  margin-bottom:8px;
-  font-size:18px;
-}
+    .ok {
+      color:green;
+    }
 
-.bagInput {
-  width:100%;
-  font-size:30px;
-  padding:18px;
-  border-radius:14px;
-  border:3px solid #2563eb;
-  margin:0;
-  box-sizing:border-box;
-  text-align:center;
-  font-weight:bold;
-  letter-spacing:1px;
-}
+    .bad {
+      color:red;
+    }
 
-.bagInput:focus {
-  outline:none;
-  border-color:#1d4ed8;
-  box-shadow:0 0 0 4px rgba(37,99,235,.15);
-}
+    .warn {
+      color:orange;
+    }
 
-.bagStatus {
-  margin-top:20px;
-  text-align:center;
-  font-size:24px;
-  font-weight:bold;
-  min-height:34px;
-}
-table { width:100%; border-collapse:collapse; margin-top:10px; font-size:17px; }
-th, td { border:1px solid #ddd; padding:10px; text-align:left; }
-th { background:#e5e7eb; }
-tr.done { background:#dcfce7; }
-tr.missing { background:white; }
+    .hidden {
+      display:none !important;
+    }
 
-.loginCard {
-  background:white;
-  padding:36px;
-  border-radius:24px;
-  width:100%;
-  max-width:520px;
-  margin:40px auto;
-  box-shadow:0 10px 35px rgba(0,0,0,.08);
-  box-sizing:border-box;
-}
-  
-.loginLogo { text-align:center; margin-bottom:15px; }
-.loginLogo img { width:90px; height:auto; display:block; margin:0 auto; }
-.loginCard h1 { text-align:center; margin:0; font-size:32px; }
-.loginSubtitle { text-align:center; color:#6b7280; margin-bottom:28px; }
-.loginCard label { display:block; font-weight:bold; margin-top:16px; margin-bottom:6px; }
+    .loginLogo {
+      text-align:center;
+      margin-bottom:15px;
+    }
 
-.loginInput {
-  width:100%;
-  font-size:22px;
-  padding:14px;
-  border-radius:12px;
-  border:2px solid #d1d5db;
-  margin:0;
-  box-sizing:border-box;
-}
-.loginInput:focus { outline:none; border-color:#2563eb; }
+    .loginLogo img {
+      width:90px;
+      height:auto;
+      display:block;
+      margin:0 auto;
+    }
 
-.loginBtn {
-  width:100%;
-  margin-top:24px;
-  font-size:24px;
-  padding:16px;
-  border-radius:14px;
-  border:none;
-  background:#2563eb;
-  color:white;
-  font-weight:bold;
-}
-.loginBtn:disabled { opacity:.6; cursor:not-allowed; }
+    /* EKRAN LOGOWANIA */
+    .loginCard {
+      background:white;
+      padding:36px;
+      border-radius:24px;
+      width:100%;
+      max-width:520px;
+      margin:40px auto;
+      box-shadow:0 10px 35px rgba(0,0,0,.08);
+      box-sizing:border-box;
+    }
 
-.loginStatus {
-  margin-top:18px;
-  padding:12px;
-  border-radius:12px;
-  font-weight:bold;
-  display:none;
-}
-.loginStatus.error { display:block; background:#fee2e2; color:#991b1b; }
-.loginStatus.ok { display:block; background:#dcfce7; color:#166534; }
+    .loginCard h1 {
+      text-align:center;
+      margin:0;
+      font-size:32px;
+    }
 
-.trayIcon {
-  width:46px;
-  height:auto;
-  vertical-align:middle;
-  margin-left:10px;
-}
+    .loginSubtitle {
+      text-align:center;
+      color:#6b7280;
+      margin-bottom:28px;
+    }
 
-.bagHeaderRow {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin:25px 0;
-}
+    .loginCard label {
+      display:block;
+      font-weight:bold;
+      margin-top:16px;
+      margin-bottom:6px;
+    }
 
-.bagCodeBig {
-  font-size:32px;
-  font-weight:bold;
-}
+    .loginInput {
+      width:100%;
+      font-size:22px;
+      padding:14px;
+      border-radius:12px;
+      border:2px solid #d1d5db;
+      margin:0;
+      box-sizing:border-box;
+    }
 
-.expectedProgressBig {
-  font-size:30px;
-  font-weight:bold;
-}
+    .loginInput:focus {
+      outline:none;
+      border-color:#2563eb;
+    }
 
-.expectedTable table {
-  font-size:28px;
-}
+    .loginBtn {
+      width:100%;
+      margin:24px 0 0;
+      font-size:24px;
+      padding:16px;
+      border-radius:14px;
+      border:none;
+      background:#2563eb;
+      color:white;
+      font-weight:bold;
+    }
 
-.expectedTable th {
-  text-align:center;
-  font-size:24px;
-  padding:18px;
-}
+    .loginBtn:disabled {
+      opacity:.6;
+      cursor:not-allowed;
+    }
 
-.expectedTable td {
-  text-align:center;
-  font-size:32px;
-  font-weight:bold;
-  padding:22px;
-}
+    .loginStatus {
+      margin-top:18px;
+      padding:12px;
+      border-radius:12px;
+      font-weight:bold;
+      display:none;
+    }
 
-.mealClick {
-  cursor:pointer;
-  font-weight:bold;
-  text-decoration:underline;
-  text-underline-offset:4px;
-}
+    .loginStatus.error {
+      display:block;
+      background:#fee2e2;
+      color:#991b1b;
+    }
 
-.mealClick:hover {
-  opacity:.7;
-}
+    .loginStatus.ok {
+      display:block;
+      background:#dcfce7;
+      color:#166534;
+    }
 
-.problemsTitle {
-  text-align:center;
-  font-size:36px;
-  margin-top:34px;
-  margin-bottom:24px;
-}
+    /* EKRAN SKANOWANIA TORBY */
+    .bagCard {
+      background:white;
+      padding:36px;
+      border-radius:24px;
+      width:100%;
+      max-width:620px;
+      margin:40px auto;
+      box-shadow:0 10px 35px rgba(0,0,0,.08);
+      box-sizing:border-box;
+    }
 
-.problemsGrid {
-  display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:16px;
-}
+    .bagCard h1 {
+      text-align:center;
+      margin:0;
+      font-size:34px;
+    }
 
-.problemBox {
-  border:1px solid #d1d5db;
-  border-radius:10px;
-  overflow:hidden;
-  min-height:150px;
-  background:white;
-  text-align:center;
-  font-size:24px;
-}
+    .bagSubtitle {
+      text-align:center;
+      color:#6b7280;
+      margin-top:8px;
+      margin-bottom:30px;
+      font-size:18px;
+    }
 
-.problemBoxHeader {
-  background:#e5e7eb;
-  padding:14px;
-  font-weight:bold;
-}
+    .bagLabel {
+      display:block;
+      font-weight:bold;
+      margin-bottom:8px;
+      font-size:18px;
+    }
 
-.problemBoxBody {
-  padding:18px;
-  line-height:1.45;
-}
+    .bagInput {
+      width:100%;
+      font-size:30px;
+      padding:18px;
+      border-radius:14px;
+      border:3px solid #2563eb;
+      margin:0;
+      box-sizing:border-box;
+      text-align:center;
+      font-weight:bold;
+      letter-spacing:1px;
+    }
 
-.problemBox button {
-  font-size:16px;
-  padding:6px 12px;
-  margin-left:8px;
-}
+    .bagInput:focus {
+      outline:none;
+      border-color:#1d4ed8;
+      box-shadow:0 0 0 4px rgba(37,99,235,.15);
+    }
 
-.modalBg {
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.55);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:999;
-}
+    .bagStatus {
+      margin-top:20px;
+      text-align:center;
+      font-size:24px;
+      font-weight:bold;
+      min-height:34px;
+    }
 
-.modal {
-  background:white;
-  padding:28px;
-  border-radius:18px;
-  width:90%;
-  max-width:650px;
-}
+    /* EKRAN SKANOWANIA TACEK */
+    .trayCard {
+      background:white;
+      padding:36px;
+      border-radius:24px;
+      width:100%;
+      max-width:1000px;
+      margin:40px auto;
+      box-shadow:0 10px 35px rgba(0,0,0,.08);
+      box-sizing:border-box;
+    }
 
-.modalBtn {
-  width:100%;
-  font-size:22px;
-  padding:15px;
-  margin:8px 0;
-  border-radius:10px;
-}
+    .trayTitle {
+      text-align:center;
+      font-size:34px;
+      margin:0 0 24px;
+    }
 
-.btnCancel { background:#e5e7eb; }
-.btnReplace { background:#f97316; color:white; border:none; }
-.btnAnother { background:#2563eb; color:white; border:none; }
+    .trayIcon {
+      width:46px;
+      height:auto;
+      vertical-align:middle;
+      margin-left:10px;
+    }
 
-@media(max-width:800px){
-  .bagHeaderRow {
-    flex-direction:column;
-    align-items:flex-start;
-    gap:10px;
-  }
+    .trayHeaderBox {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:20px;
+      background:#f9fafb;
+      border:1px solid #e5e7eb;
+      padding:22px;
+      border-radius:18px;
+      margin-bottom:26px;
+    }
 
-  .problemsGrid {
-    grid-template-columns:1fr;
-  }
-}
-  .trayCard {
-  background:white;
-  padding:36px;
-  border-radius:24px;
-  width:100%;
-  max-width:1000px;
-  margin:40px auto;
-  box-shadow:0 10px 35px rgba(0,0,0,.08);
-  box-sizing:border-box;
-}
+    .traySmallLabel {
+      color:#6b7280;
+      font-size:16px;
+      font-weight:bold;
+      margin-bottom:6px;
+    }
 
-.trayTitle {
-  text-align:center;
-  font-size:34px;
-  margin:0 0 24px;
-}
+    .bagCodeBig {
+      font-size:32px;
+      font-weight:bold;
+    }
 
-.trayHeaderBox {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:20px;
-  background:#f9fafb;
-  border:1px solid #e5e7eb;
-  padding:22px;
-  border-radius:18px;
-  margin-bottom:26px;
-}
+    .expectedProgressBig {
+      font-size:34px;
+      font-weight:bold;
+      color:#2563eb;
+    }
 
-.traySmallLabel {
-  color:#6b7280;
-  font-size:16px;
-  font-weight:bold;
-  margin-bottom:6px;
-}
+    .trayLabel {
+      display:block;
+      font-weight:bold;
+      margin-bottom:8px;
+      font-size:18px;
+    }
 
-.bagCodeBig {
-  font-size:32px;
-  font-weight:bold;
-}
+    .trayInputNew {
+      width:100%;
+      font-size:32px;
+      padding:18px;
+      border-radius:14px;
+      border:3px solid #2563eb;
+      margin:0 0 16px;
+      box-sizing:border-box;
+      text-align:center;
+      font-weight:bold;
+      letter-spacing:1px;
+    }
 
-.expectedProgressBig {
-  font-size:34px;
-  font-weight:bold;
-  color:#2563eb;
-}
+    .trayInputNew:focus {
+      outline:none;
+      border-color:#1d4ed8;
+      box-shadow:0 0 0 4px rgba(37,99,235,.15);
+    }
 
-.trayLabel {
-  display:block;
-  font-weight:bold;
-  margin-bottom:8px;
-  font-size:18px;
-}
+    .actionButtons {
+      display:flex;
+      gap:12px;
+      margin:10px 0 14px;
+    }
 
-.trayInputNew {
-  width:100%;
-  font-size:32px;
-  padding:18px;
-  border-radius:14px;
-  border:3px solid #2563eb;
-  margin:0 0 16px;
-  box-sizing:border-box;
-  text-align:center;
-  font-weight:bold;
-  letter-spacing:1px;
-}
+    .cancelBtn {
+      flex:1;
+      font-size:20px;
+      padding:16px;
+      border-radius:14px;
+      border:none;
+      background:#e5e7eb;
+      font-weight:bold;
+      cursor:pointer;
+      margin:0;
+    }
 
-.trayInputNew:focus {
-  outline:none;
-  border-color:#1d4ed8;
-  box-shadow:0 0 0 4px rgba(37,99,235,.15);
-}
+    .cancelBtn:hover {
+      background:#d1d5db;
+    }
 
-.trayStatus {
-  margin-top:18px;
-  text-align:center;
-  font-size:28px;
-  font-weight:bold;
-  min-height:38px;
-}
+    .fullBtn {
+      flex:2;
+      width:100%;
+      font-size:22px;
+      padding:16px;
+      margin:0;
+      background:#ef4444;
+      color:white;
+      border:none;
+      border-radius:14px;
+      font-weight:bold;
+    }
 
-.fullBtn {
-  width:100%;
-  font-size:22px;
-  padding:16px;
-  margin:8px 0 12px;
-  background:#ef4444;
-  color:white;
-  border:none;
-  border-radius:14px;
-  font-weight:bold;
-}
+    .fullBtn:hover {
+      background:#dc2626;
+    }
 
-.fullBtn:hover {
-  background:#dc2626;
-}
+    .trayStatus {
+      margin-top:18px;
+      text-align:center;
+      font-size:28px;
+      font-weight:bold;
+      min-height:38px;
+    }
 
-@media(max-width:800px){
-  .trayCard {
-    padding:24px;
-    margin:20px auto;
-  }
+    .expectedTable table {
+      font-size:28px;
+    }
 
-  .trayHeaderBox {
-    flex-direction:column;
-    align-items:flex-start;
-  }
+    .expectedTable th {
+      text-align:center;
+      font-size:24px;
+      padding:18px;
+    }
 
-  .problemsGrid {
-    grid-template-columns:1fr;
-  }
-}
-</style>
+    .expectedTable td {
+      text-align:center;
+      font-size:32px;
+      font-weight:bold;
+      padding:22px;
+    }
+
+    .mealClick {
+      cursor:pointer;
+      font-weight:bold;
+      text-decoration:underline;
+      text-underline-offset:4px;
+    }
+
+    .mealClick:hover {
+      opacity:.7;
+    }
+
+    .problemsTitle {
+      text-align:center;
+      font-size:36px;
+      margin-top:34px;
+      margin-bottom:24px;
+    }
+
+    .problemsGrid {
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:16px;
+    }
+
+    .problemBox {
+      border:1px solid #d1d5db;
+      border-radius:10px;
+      overflow:hidden;
+      min-height:150px;
+      background:white;
+      text-align:center;
+      font-size:24px;
+    }
+
+    .problemBoxHeader {
+      background:#e5e7eb;
+      padding:14px;
+      font-weight:bold;
+    }
+
+    .problemBoxBody {
+      padding:18px;
+      line-height:1.45;
+    }
+
+    .problemBox button {
+      font-size:16px;
+      padding:6px 12px;
+      margin-left:8px;
+    }
+
+    /* MODALE */
+    .modalBg {
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.55);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      z-index:999;
+    }
+
+    .modal {
+      background:white;
+      padding:28px;
+      border-radius:18px;
+      width:90%;
+      max-width:650px;
+    }
+
+    .modalBtn {
+      width:100%;
+      font-size:22px;
+      padding:15px;
+      margin:8px 0;
+      border-radius:10px;
+    }
+
+    .btnCancel {
+      background:#e5e7eb;
+    }
+
+    .btnReplace {
+      background:#f97316;
+      color:white;
+      border:none;
+    }
+
+    .btnAnother {
+      background:#2563eb;
+      color:white;
+      border:none;
+    }
+
+    @media(max-width:800px){
+      body {
+        padding:12px;
+      }
+
+      .loginCard,
+      .bagCard,
+      .trayCard {
+        padding:24px;
+        margin:20px auto;
+      }
+
+      .trayHeaderBox {
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .actionButtons {
+        flex-direction:column;
+      }
+
+      .cancelBtn,
+      .fullBtn {
+        width:100%;
+      }
+
+      .problemsGrid {
+        grid-template-columns:1fr;
+      }
+
+      .expectedTable table {
+        font-size:20px;
+      }
+
+      .expectedTable th {
+        font-size:18px;
+        padding:12px;
+      }
+
+      .expectedTable td {
+        font-size:22px;
+        padding:14px;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -484,9 +567,9 @@ tr.missing { background:white; }
   <input id="trayInput" class="trayInputNew" placeholder="Zeskanuj kod tacki">
 
   <div class="actionButtons">
-  <button class="cancelBtn" onclick="reset()">↩️ Anuluj</button>
-  <button class="fullBtn" onclick="closeBagBad()">❌ Zamknij jako niepoprawną</button>
-</div>
+    <button class="cancelBtn" onclick="reset()">↩️ Anuluj</button>
+    <button class="fullBtn" onclick="closeBagBad()">❌ Zamknij jako niepoprawną</button>
+  </div>
 
   <p id="status" class="trayStatus"></p>
 
@@ -807,7 +890,7 @@ function startBagPacking(bag, data) {
   bagInput.value = "";
   bagStatus.innerText = "";
   status.innerText = "Skanuj tacki";
-  status.className = "";
+  status.className = "trayStatus";
 
   showOnly("trayScreen");
   render();
@@ -965,7 +1048,7 @@ async function scanTray() {
   if (scanned.map(normalizeCode).includes(tray)) {
     duplicates.push(val);
     status.innerText = "⚠️ Duplikat: " + val;
-    status.className = "warn";
+    status.className = "trayStatus warn";
     trayInput.value = "";
     render();
     trayInput.focus();
@@ -978,7 +1061,7 @@ async function scanTray() {
   if (!expected.includes(tray)) {
     wrong.push(val);
     status.innerText = "❌ Zła tacka: " + val;
-    status.className = "bad";
+    status.className = "trayStatus bad";
     trayInput.value = "";
     render();
     trayInput.focus();
@@ -987,7 +1070,7 @@ async function scanTray() {
   }
 
   status.innerText = "✅ OK: " + val;
-  status.className = "ok";
+  status.className = "trayStatus ok";
 
   trayInput.value = "";
   render();
@@ -1006,7 +1089,7 @@ function removeWrong(index) {
   if (scannedIndex >= 0) scanned.splice(scannedIndex, 1);
 
   status.innerText = "Usunięto błędną tackę: " + removed;
-  status.className = "warn";
+  status.className = "trayStatus warn";
 
   render();
   checkAutoClose();
@@ -1017,7 +1100,7 @@ function removeDuplicate(index) {
   duplicates.splice(index, 1);
 
   status.innerText = "Usunięto duplikat: " + removed;
-  status.className = "warn";
+  status.className = "trayStatus warn";
 
   render();
   checkAutoClose();
@@ -1038,7 +1121,7 @@ async function checkAutoClose() {
 async function closeBagCorrect() {
   isClosing = true;
   status.innerText = "🎉 TORBA GOTOWA";
-  status.className = "ok";
+  status.className = "trayStatus ok";
   sound("done");
 
   await save("POPRAWNA");
@@ -1086,6 +1169,7 @@ function reset() {
   bagInput.value = "";
   trayInput.value = "";
   status.innerText = "";
+  status.className = "trayStatus";
 
   showOnly("bagScreen");
   focusBagInput();
