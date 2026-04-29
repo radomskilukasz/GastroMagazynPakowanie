@@ -132,6 +132,100 @@ tr.missing { background:white; }
 .btnCancel { background:#e5e7eb; }
 .btnReplace { background:#f97316; color:white; border:none; }
 .btnAnother { background:#2563eb; color:white; border:none; }
+  .bagHeaderRow {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:25px 0 25px 0;
+}
+
+.bagCodeBig {
+  font-size:32px;
+  font-weight:bold;
+}
+
+.expectedProgressBig {
+  font-size:30px;
+  font-weight:bold;
+}
+
+.expectedTitle {
+  display:none;
+}
+
+.expectedTable table {
+  font-size:28px;
+}
+
+.expectedTable th {
+  text-align:center;
+  font-size:24px;
+  padding:18px;
+}
+
+.expectedTable td {
+  text-align:center;
+  font-size:32px;
+  font-weight:bold;
+  padding:22px;
+}
+
+.mealClick {
+  cursor:pointer;
+  font-weight:bold;
+  text-decoration:underline;
+  text-underline-offset:4px;
+}
+
+.mealClick:hover {
+  opacity:.7;
+}
+
+.problemsTitle {
+  text-align:center;
+  font-size:36px;
+  margin-top:34px;
+  margin-bottom:24px;
+}
+
+.problemsGrid {
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:16px;
+}
+
+.problemBox {
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  overflow:hidden;
+  min-height:150px;
+  background:white;
+  text-align:center;
+  font-size:24px;
+}
+
+.problemBoxHeader {
+  background:#e5e7eb;
+  padding:14px;
+  font-weight:bold;
+}
+
+.problemBoxBody {
+  padding:18px;
+  line-height:1.45;
+}
+
+@media(max-width:800px){
+  .bagHeaderRow {
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+  }
+
+  .problemsGrid {
+    grid-template-columns:1fr;
+  }
+}
 </style>
 </head>
 
@@ -163,7 +257,10 @@ tr.missing { background:white; }
 
 <div class="card hidden" id="trayScreen">
   <h1>Skanowanie tacek <img src="tacka.png" class="trayIcon" alt="tacka"></h1>
-  <h2>Torba: <span id="currentBagLabel"></span></h2>
+  <div class="bagHeaderRow">
+  <div class="bagCodeBig" id="currentBagLabel"></div>
+  <div class="expectedProgressBig">Oczekiwane tacki <span id="expectedProgress">0/0</span></div>
+</div>
 
 <input id="trayInput" class="scanInput" placeholder="Zeskanuj kod tacki">
 
@@ -173,11 +270,10 @@ tr.missing { background:white; }
   <p id="status"></p>
 
 
-  <h3>Oczekiwane tacki <span id="expectedProgress">0/0</span></h3>
-  <div id="expectedList"></div>
+  <div id="expectedList" class="expectedTable"></div>
 
-  <h3>Problemy</h3>
-  <div id="problems"></div>
+<h2 class="problemsTitle">Problemy</h2>
+<div id="problems"></div>
 </div>
 
 <div id="duplicateBagModal" class="modalBg hidden">
@@ -623,29 +719,42 @@ function render() {
     </table>
   `;
 
-  problems.innerHTML = `
-    <b>Brakujące:</b><br>
-    ${missing.length ? missing.map(x => x.tray_qr).join("<br>") : "-"}
-    <br><br>
+problems.innerHTML = `
+  <div class="problemsGrid">
 
-    <b>Błędne:</b><br>
-    ${wrong.length ? wrong.map((x, i) => `
-      <div class="problem">
-        ${x}
-        <button onclick="removeWrong(${i})">Usuń</button>
+    <div class="problemBox">
+      <div class="problemBoxHeader">Brakujące:</div>
+      <div class="problemBoxBody">
+        ${missing.length ? missing.map(x => x.tray_qr).join("<br>") : "-"}
       </div>
-    `).join("") : "-"}
-    <br>
+    </div>
 
-    <b>Duplikaty:</b><br>
-    ${duplicates.length ? duplicates.map((x, i) => `
-      <div class="problem">
-        ${x}
-        <button onclick="removeDuplicate(${i})">Usuń</button>
+    <div class="problemBox">
+      <div class="problemBoxHeader">Błędne:</div>
+      <div class="problemBoxBody">
+        ${wrong.length ? wrong.map((x, i) => `
+          <div>
+            ${x}
+            <button onclick="removeWrong(${i})">Usuń</button>
+          </div>
+        `).join("") : "-"}
       </div>
-    `).join("") : "-"}
-  `;
-}
+    </div>
+
+    <div class="problemBox">
+      <div class="problemBoxHeader">Duplikaty:</div>
+      <div class="problemBoxBody">
+        ${duplicates.length ? duplicates.map((x, i) => `
+          <div>
+            ${x}
+            <button onclick="removeDuplicate(${i})">Usuń</button>
+          </div>
+        `).join("") : "-"}
+      </div>
+    </div>
+
+  </div>
+`;
 
 async function scanTray() {
   const val = trayInput.value.trim();
