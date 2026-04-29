@@ -14,6 +14,12 @@
   border:3px solid #2563eb;
   border-radius:14px;
 }
+  .mealClick {
+  cursor:pointer;
+  text-decoration:underline;
+  font-weight:bold;
+  color:#2563eb;
+}
 body { font-family: Arial; padding:20px; background:#f3f4f6; }
 .card { background:white; padding:25px; border-radius:18px; max-width:1000px; margin:auto; }
 input { font-size:28px; padding:15px; width:90%; margin:10px 0; }
@@ -193,7 +199,13 @@ tr.missing { background:white; }
     </button>
   </div>
 </div>
-
+<div id="mealModal" class="modalBg hidden">
+  <div class="modal">
+    <h2>Szczegóły posiłku</h2>
+    <p id="mealDetails"></p>
+    <button class="modalBtn btnCancel" onclick="closeMealDetails()">Zamknij</button>
+  </div>
+</div>
 <script>
 const supabaseClient = window.supabase.createClient(
   "https://lanmmbpqxmenyjwvwpkt.supabase.co",
@@ -220,6 +232,25 @@ function hasAccess(role, allowedRoles) {
 }
 let currentUser = null;
 let currentBag = null;
+  function showMealDetails(index) {
+  const item = expectedItems[index];
+  if (!item) return;
+
+  mealDetails.innerHTML = `
+    <b>Posiłek:</b> ${item.meal || "-"}<br>
+    <b>Kod:</b> ${item.code || "-"}<br>
+    <b>Rozmiar:</b> ${item.size || "-"}<br>
+    <b>QR tacki:</b> ${item.tray_qr || "-"}<br><br>
+    <b>Nazwa dania:</b><br>
+    ${item.dish_name || "-"}
+  `;
+
+  mealModal.classList.remove("hidden");
+}
+
+function closeMealDetails() {
+  mealModal.classList.add("hidden");
+}
 let expectedItems = [];
 let scanned = [];
 let wrong = [];
@@ -581,8 +612,9 @@ function render() {
           return `
             <tr class="${done ? "done" : "missing"}">
               <td>
-  <b>${i.meal || ""}</b><br>
-  <span style="font-size:14px;color:#6b7280;">${i.dish_name || ""}</span>
+  <span class="mealClick" onclick="showMealDetails(${expectedItems.indexOf(i)})">
+    ${i.meal || ""}
+  </span>
 </td>
 <td>${i.code || ""}</td>
 <td>${i.size || ""}</td>
