@@ -17,8 +17,7 @@
   .mealClick {
   cursor:pointer;
   text-decoration:underline;
-  font-weight:bold;
-  color:#2563eb;
+  opacity:0.7;
 }
 body { font-family: Arial; padding:20px; background:#f3f4f6; }
 .card { background:white; padding:25px; border-radius:18px; max-width:1000px; margin:auto; }
@@ -603,7 +602,6 @@ function render() {
 <th>Posiłek</th>
 <th>Kod</th>
 <th>Rozmiar</th>
-<th>QR Tacki</th>
         </tr>
       </thead>
       <tbody>
@@ -618,7 +616,6 @@ function render() {
 </td>
 <td>${i.code || ""}</td>
 <td>${i.size || ""}</td>
-<td>${i.tray_qr || ""}</td>
             </tr>
           `;
         }).join("")}
