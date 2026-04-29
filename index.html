@@ -283,6 +283,118 @@ tr.missing { background:white; }
     grid-template-columns:1fr;
   }
 }
+  .trayCard {
+  background:white;
+  padding:36px;
+  border-radius:24px;
+  width:100%;
+  max-width:1000px;
+  margin:40px auto;
+  box-shadow:0 10px 35px rgba(0,0,0,.08);
+  box-sizing:border-box;
+}
+
+.trayTitle {
+  text-align:center;
+  font-size:34px;
+  margin:0 0 24px;
+}
+
+.trayHeaderBox {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  background:#f9fafb;
+  border:1px solid #e5e7eb;
+  padding:22px;
+  border-radius:18px;
+  margin-bottom:26px;
+}
+
+.traySmallLabel {
+  color:#6b7280;
+  font-size:16px;
+  font-weight:bold;
+  margin-bottom:6px;
+}
+
+.bagCodeBig {
+  font-size:32px;
+  font-weight:bold;
+}
+
+.expectedProgressBig {
+  font-size:34px;
+  font-weight:bold;
+  color:#2563eb;
+}
+
+.trayLabel {
+  display:block;
+  font-weight:bold;
+  margin-bottom:8px;
+  font-size:18px;
+}
+
+.trayInputNew {
+  width:100%;
+  font-size:32px;
+  padding:18px;
+  border-radius:14px;
+  border:3px solid #2563eb;
+  margin:0 0 16px;
+  box-sizing:border-box;
+  text-align:center;
+  font-weight:bold;
+  letter-spacing:1px;
+}
+
+.trayInputNew:focus {
+  outline:none;
+  border-color:#1d4ed8;
+  box-shadow:0 0 0 4px rgba(37,99,235,.15);
+}
+
+.trayStatus {
+  margin-top:18px;
+  text-align:center;
+  font-size:28px;
+  font-weight:bold;
+  min-height:38px;
+}
+
+.fullBtn {
+  width:100%;
+  font-size:22px;
+  padding:16px;
+  margin:8px 0 12px;
+  background:#ef4444;
+  color:white;
+  border:none;
+  border-radius:14px;
+  font-weight:bold;
+}
+
+.fullBtn:hover {
+  background:#dc2626;
+}
+
+@media(max-width:800px){
+  .trayCard {
+    padding:24px;
+    margin:20px auto;
+  }
+
+  .trayHeaderBox {
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .problemsGrid {
+    grid-template-columns:1fr;
+  }
+}
 </style>
 </head>
 
@@ -321,20 +433,36 @@ tr.missing { background:white; }
   <p id="bagStatus" class="bagStatus"></p>
 </div>
 
-<div class="card hidden" id="trayScreen">
-  <h1>Skanowanie tacek <img src="tacka.png" class="trayIcon" alt="tacka"></h1>
-
-  <div class="bagHeaderRow">
-    <div class="bagCodeBig" id="currentBagLabel"></div>
-    <div class="expectedProgressBig">Oczekiwane tacki <span id="expectedProgress">0/0</span></div>
+<div class="trayCard hidden" id="trayScreen">
+  <div class="loginLogo">
+    <img src="logo.png" alt="logo">
   </div>
 
-  <input id="trayInput" class="scanInput" placeholder="Zeskanuj kod tacki">
+  <h1 class="trayTitle">
+    Skanowanie tacek
+    <img src="tacka.png" class="trayIcon" alt="tacka">
+  </h1>
 
-  <br>
+  <div class="trayHeaderBox">
+    <div>
+      <div class="traySmallLabel">Aktualna torba</div>
+      <div class="bagCodeBig" id="currentBagLabel"></div>
+    </div>
+
+    <div>
+      <div class="traySmallLabel">Postęp</div>
+      <div class="expectedProgressBig">
+        <span id="expectedProgress">0/0</span>
+      </div>
+    </div>
+  </div>
+
+  <label class="trayLabel">Kod tacki</label>
+  <input id="trayInput" class="trayInputNew" placeholder="Zeskanuj kod tacki">
+
   <button class="fullBtn" onclick="closeBagBad()">❌ Zamknij jako niepoprawną</button>
 
-  <p id="status"></p>
+  <p id="status" class="trayStatus"></p>
 
   <div id="expectedList" class="expectedTable"></div>
 
