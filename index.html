@@ -840,11 +840,10 @@ async function loadBag() {
     return;
   }
 
-  const { data: sessions, error: sessionError } = await supabaseClient
-    .from("packing_sessions")
-    .select("*")
-    .eq("bag_qr", bag)
-    .order("closed_at", { ascending: false });
+const { data: sessions, error: sessionError } = await supabaseClient
+  .rpc("get_bag_sessions_for_packing", {
+    target_bag: bag
+  });
 
   if (sessionError) {
     bagStatus.innerText = "❌ Błąd sprawdzania historii torby";
@@ -916,10 +915,10 @@ async function replaceOldBagSession() {
   duplicateBagModal.classList.add("hidden");
   bagStatus.innerText = "Usuwam stare zapisy...";
 
-  const { error } = await supabaseClient
-    .from("packing_sessions")
-    .delete()
-    .eq("bag_qr", pendingBag);
+const { data, error } = await supabaseClient
+  .rpc("delete_bag_sessions_for_repack", {
+    target_bag: pendingBag
+  });
 
   if (error) {
     bagStatus.innerText = "❌ Nie udało się usunąć starego zapisu: " + error.message;
