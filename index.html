@@ -915,10 +915,10 @@ async function replaceOldBagSession() {
   duplicateBagModal.classList.add("hidden");
   bagStatus.innerText = "Usuwam stare zapisy...";
 
-const { data, error } = await supabaseClient
-  .rpc("delete_bag_sessions_for_repack", {
-    target_bag: pendingBag
-  });
+  const { error } = await supabaseClient
+    .rpc("delete_bag_sessions_for_repack", {
+      target_bag: pendingBag
+    });
 
   if (error) {
     bagStatus.innerText = "❌ Nie udało się usunąć starego zapisu: " + error.message;
@@ -927,13 +927,13 @@ const { data, error } = await supabaseClient
   }
 
   const bag = pendingBag;
-  const data = pendingBagData;
+  const bagData = pendingBagData;
 
   pendingBag = null;
   pendingBagData = [];
   existingBagSessions = [];
 
-  startBagPacking(bag, data);
+  startBagPacking(bag, bagData);
 }
 
 function packAnotherSameBag() {
