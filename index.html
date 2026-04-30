@@ -618,6 +618,7 @@ let pendingBagData = [];
 let existingBagSessions = [];
 
 let audioCtx = null;
+let logoutTimer = null;
 
 async function getUserRole(userId) {
   const { data, error } = await supabaseClient
@@ -709,7 +710,49 @@ function showOnly(id) {
   });
   document.getElementById(id).classList.remove("hidden");
 }
+  
+async function autoLogout() {
+  try {
+    await supabaseClient.auth.signOut();
+  } catch(e) {}
 
+  if (logoutTimer) {
+    clearTimeout(logoutTimer);
+    logoutTimer = null;
+  }
+
+  currentUser = null;
+  currentBag = null;
+  expectedItems = [];
+  scanned = [];
+  wrong = [];
+  duplicates = [];
+  startedAt = null;
+  isClosing = false;
+
+  bagInput.value = "";
+  trayInput.value = "";
+  status.innerText = "";
+  status.className = "trayStatus";
+
+  showOnly("loginScreen");
+
+  loginStatus.innerText = "Sesja wygasła po 8 godzinach pracy. Zaloguj się ponownie.";
+  loginStatus.className = "loginStatus error";
+
+  setTimeout(() => {
+    email.focus();
+  }, 100);
+}
+
+function startLogoutTimer() {
+  if (logoutTimer) clearTimeout(logoutTimer);
+
+  logoutTimer = setTimeout(() => {
+    autoLogout();
+  }, 8 * 60 * 60 * 1000);
+}
+  
 function focusBagInput() {
   setTimeout(() => {
     bagInput.focus();
@@ -801,6 +844,7 @@ async function login() {
   }
 
   currentUser = data.user;
+  startLogoutTimer();
 
   const role = await getUserRole(currentUser.id);
 
