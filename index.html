@@ -4,14 +4,33 @@
   <link rel="icon" type="image/png" sizes="32x32" href="logo-removebg-preview.png">
   <link rel="icon" type="image/png" sizes="16x16" href="logo-removebg-preview.png">
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pakowanie Toreb</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    :root {
+      --bg:#f3f4f6;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --blue:#2563eb;
+      --blue-dark:#1d4ed8;
+      --green:#16a34a;
+      --red:#dc2626;
+      --orange:#f59e0b;
+      --shadow:0 10px 35px rgba(0,0,0,.08);
+    }
+
+    * { box-sizing:border-box; }
+
     body {
-      font-family: Arial, sans-serif;
+      font-family:Arial, sans-serif;
       padding:20px;
-      background:#f3f4f6;
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
     }
 
     button {
@@ -19,6 +38,14 @@
       padding:8px 12px;
       margin:5px;
       cursor:pointer;
+      border-radius:12px;
+      border:none;
+      font-weight:bold;
+    }
+
+    button:disabled {
+      opacity:.6;
+      cursor:not-allowed;
     }
 
     table {
@@ -28,40 +55,20 @@
       font-size:17px;
     }
 
-    th,
-    td {
+    th, td {
       border:1px solid #ddd;
       padding:10px;
       text-align:left;
     }
 
-    th {
-      background:#e5e7eb;
-    }
+    th { background:#e5e7eb; }
+    tr.done { background:#dcfce7; }
+    tr.missing { background:white; }
 
-    tr.done {
-      background:#dcfce7;
-    }
-
-    tr.missing {
-      background:white;
-    }
-
-    .ok {
-      color:green;
-    }
-
-    .bad {
-      color:red;
-    }
-
-    .warn {
-      color:orange;
-    }
-
-    .hidden {
-      display:none !important;
-    }
+    .ok { color:green; }
+    .bad { color:red; }
+    .warn { color:orange; }
+    .hidden { display:none !important; }
 
     .loginLogo {
       text-align:center;
@@ -75,27 +82,36 @@
       margin:0 auto;
     }
 
-    /* EKRAN LOGOWANIA */
-    .loginCard {
+    .loginCard,
+    .bagCard,
+    .trayCard {
       background:white;
       padding:36px;
       border-radius:24px;
       width:100%;
-      max-width:520px;
       margin:40px auto;
-      box-shadow:0 10px 35px rgba(0,0,0,.08);
+      box-shadow:var(--shadow);
       box-sizing:border-box;
     }
 
-    .loginCard h1 {
+    .loginCard { max-width:520px; }
+    .bagCard { max-width:620px; }
+    .trayCard { max-width:1000px; }
+
+    .loginCard h1,
+    .bagCard h1 {
       text-align:center;
       margin:0;
       font-size:32px;
     }
 
-    .loginSubtitle {
+    .bagCard h1 { font-size:34px; }
+
+    .loginSubtitle,
+    .bagSubtitle {
       text-align:center;
-      color:#6b7280;
+      color:var(--muted);
+      margin-top:8px;
       margin-bottom:28px;
     }
 
@@ -113,12 +129,11 @@
       border-radius:12px;
       border:2px solid #d1d5db;
       margin:0;
-      box-sizing:border-box;
     }
 
     .loginInput:focus {
       outline:none;
-      border-color:#2563eb;
+      border-color:var(--blue);
     }
 
     .loginBtn {
@@ -128,15 +143,12 @@
       padding:16px;
       border-radius:14px;
       border:none;
-      background:#2563eb;
+      background:var(--blue);
       color:white;
       font-weight:bold;
     }
 
-    .loginBtn:disabled {
-      opacity:.6;
-      cursor:not-allowed;
-    }
+    .loginBtn:hover { background:var(--blue-dark); }
 
     .loginStatus {
       margin-top:18px;
@@ -144,6 +156,7 @@
       border-radius:12px;
       font-weight:bold;
       display:none;
+      line-height:1.35;
     }
 
     .loginStatus.error {
@@ -158,47 +171,13 @@
       color:#166534;
     }
 
-    /* EKRAN SKANOWANIA TORBY */
-    .bagCard {
-      background:white;
-      padding:36px;
-      border-radius:24px;
-      width:100%;
-      max-width:620px;
-      margin:40px auto;
-      box-shadow:0 10px 35px rgba(0,0,0,.08);
-      box-sizing:border-box;
-    }
-
-    .bagCard h1 {
-      text-align:center;
-      margin:0;
-      font-size:34px;
-    }
-
-    .bagSubtitle {
-      text-align:center;
-      color:#6b7280;
-      margin-top:8px;
-      margin-bottom:30px;
-      font-size:18px;
-    }
-
-    .bagLabel {
-      display:block;
-      font-weight:bold;
-      margin-bottom:8px;
-      font-size:18px;
-    }
-
     .bagInput {
       width:100%;
       font-size:30px;
       padding:18px;
       border-radius:14px;
-      border:3px solid #2563eb;
+      border:3px solid var(--blue);
       margin:0;
-      box-sizing:border-box;
       text-align:center;
       font-weight:bold;
       letter-spacing:1px;
@@ -206,7 +185,7 @@
 
     .bagInput:focus {
       outline:none;
-      border-color:#1d4ed8;
+      border-color:var(--blue-dark);
       box-shadow:0 0 0 4px rgba(37,99,235,.15);
     }
 
@@ -216,18 +195,7 @@
       font-size:24px;
       font-weight:bold;
       min-height:34px;
-    }
-
-    /* EKRAN SKANOWANIA TACEK */
-    .trayCard {
-      background:white;
-      padding:36px;
-      border-radius:24px;
-      width:100%;
-      max-width:1000px;
-      margin:40px auto;
-      box-shadow:0 10px 35px rgba(0,0,0,.08);
-      box-sizing:border-box;
+      line-height:1.35;
     }
 
     .trayTitle {
@@ -249,14 +217,14 @@
       align-items:center;
       gap:20px;
       background:#f9fafb;
-      border:1px solid #e5e7eb;
+      border:1px solid var(--border);
       padding:22px;
       border-radius:18px;
       margin-bottom:26px;
     }
 
     .traySmallLabel {
-      color:#6b7280;
+      color:var(--muted);
       font-size:16px;
       font-weight:bold;
       margin-bottom:6px;
@@ -265,19 +233,13 @@
     .bagCodeBig {
       font-size:32px;
       font-weight:bold;
+      word-break:break-word;
     }
 
     .expectedProgressBig {
       font-size:34px;
       font-weight:bold;
-      color:#2563eb;
-    }
-
-    .trayLabel {
-      display:block;
-      font-weight:bold;
-      margin-bottom:8px;
-      font-size:18px;
+      color:var(--blue);
     }
 
     .trayInputNew {
@@ -285,9 +247,8 @@
       font-size:32px;
       padding:18px;
       border-radius:14px;
-      border:3px solid #2563eb;
+      border:3px solid var(--blue);
       margin:0 0 16px;
-      box-sizing:border-box;
       text-align:center;
       font-weight:bold;
       letter-spacing:1px;
@@ -295,7 +256,7 @@
 
     .trayInputNew:focus {
       outline:none;
-      border-color:#1d4ed8;
+      border-color:var(--blue-dark);
       box-shadow:0 0 0 4px rgba(37,99,235,.15);
     }
 
@@ -312,14 +273,12 @@
       border-radius:14px;
       border:none;
       background:#e5e7eb;
+      color:#111827;
       font-weight:bold;
-      cursor:pointer;
       margin:0;
     }
 
-    .cancelBtn:hover {
-      background:#d1d5db;
-    }
+    .cancelBtn:hover { background:#d1d5db; }
 
     .fullBtn {
       flex:2;
@@ -334,9 +293,7 @@
       font-weight:bold;
     }
 
-    .fullBtn:hover {
-      background:#dc2626;
-    }
+    .fullBtn:hover { background:#dc2626; }
 
     .trayStatus {
       margin-top:18px;
@@ -344,11 +301,10 @@
       font-size:28px;
       font-weight:bold;
       min-height:38px;
+      line-height:1.3;
     }
 
-    .expectedTable table {
-      font-size:28px;
-    }
+    .expectedTable table { font-size:28px; }
 
     .expectedTable th {
       text-align:center;
@@ -370,9 +326,7 @@
       text-underline-offset:4px;
     }
 
-    .mealClick:hover {
-      opacity:.7;
-    }
+    .mealClick:hover { opacity:.7; }
 
     .problemsTitle {
       text-align:center;
@@ -406,15 +360,17 @@
     .problemBoxBody {
       padding:18px;
       line-height:1.45;
+      word-break:break-word;
     }
 
     .problemBox button {
       font-size:16px;
       padding:6px 12px;
       margin-left:8px;
+      background:#e5e7eb;
+      color:#111827;
     }
 
-    /* MODALE */
     .modalBg {
       position:fixed;
       inset:0;
@@ -423,6 +379,7 @@
       justify-content:center;
       align-items:center;
       z-index:999;
+      padding:14px;
     }
 
     .modal {
@@ -431,6 +388,8 @@
       border-radius:18px;
       width:90%;
       max-width:650px;
+      max-height:90vh;
+      overflow:auto;
     }
 
     .modalBtn {
@@ -443,24 +402,21 @@
 
     .btnCancel {
       background:#e5e7eb;
+      color:#111827;
     }
 
     .btnReplace {
       background:#f97316;
       color:white;
-      border:none;
     }
 
     .btnAnother {
-      background:#2563eb;
+      background:var(--blue);
       color:white;
-      border:none;
     }
 
     @media(max-width:800px){
-      body {
-        padding:12px;
-      }
+      body { padding:12px; }
 
       .loginCard,
       .bagCard,
@@ -515,10 +471,10 @@
   <p class="loginSubtitle">Zaloguj się, aby rozpocząć skanowanie</p>
 
   <label>Login pracownika</label>
-  <input id="email" class="loginInput" placeholder="np. JanKowalski">
+  <input id="email" class="loginInput" placeholder="np. JanKowalski" autocomplete="username">
 
   <label>Hasło</label>
-  <input id="password" class="loginInput" type="password" placeholder="Wpisz hasło">
+  <input id="password" class="loginInput" type="password" placeholder="Wpisz hasło" autocomplete="current-password">
 
   <button id="loginBtn" class="loginBtn" onclick="login()">Zaloguj</button>
 
@@ -533,7 +489,7 @@
   <h1>Zeskanuj torbę</h1>
   <p class="bagSubtitle">Zeskanuj kod QR torby, aby rozpocząć pakowanie</p>
 
-  <input id="bagInput" class="bagInput" placeholder="Zeskanuj kod torby" autofocus>
+  <input id="bagInput" class="bagInput" placeholder="Zeskanuj kod torby" autocomplete="off">
 
   <p id="bagStatus" class="bagStatus"></p>
 </div>
@@ -562,11 +518,11 @@
     </div>
   </div>
 
-  <input id="trayInput" class="trayInputNew" placeholder="Zeskanuj kod tacki">
+  <input id="trayInput" class="trayInputNew" placeholder="Zeskanuj kod tacki" autocomplete="off">
 
   <div class="actionButtons">
     <button class="cancelBtn" onclick="reset()">↩️ Anuluj</button>
-    <button class="fullBtn" onclick="closeBagBad()">❌ Zamknij jako niepoprawną</button>
+    <button id="badCloseBtn" class="fullBtn" onclick="closeBagBad()">❌ Zamknij jako niepoprawną</button>
   </div>
 
   <p id="status" class="trayStatus"></p>
@@ -583,7 +539,7 @@
     <p id="duplicateBagInfo"></p>
 
     <button class="modalBtn btnCancel" onclick="cancelDuplicateBag()">Anuluj i wróć do skanowania toreb</button>
-    <button class="modalBtn btnReplace" onclick="replaceOldBagSession()">Pakuj ponownie i usuń stary zapis</button>
+    <button class="modalBtn btnReplace" onclick="replaceOldBagSession()">Pakuj ponownie i usuń ostatni zapis</button>
     <button class="modalBtn btnAnother" onclick="packAnotherSameBag()">Pakuj kolejną z tym samym kodem</button>
   </div>
 </div>
@@ -607,9 +563,10 @@ const LOGIN_DOMAIN = "@pakowanie.local";
 let currentUser = null;
 let currentBag = null;
 let expectedItems = [];
-let scanned = [];
+let correctScans = [];
 let wrong = [];
 let duplicates = [];
+let allScans = [];
 let startedAt = null;
 let isClosing = false;
 
@@ -620,72 +577,14 @@ let existingBagSessions = [];
 let audioCtx = null;
 let logoutTimer = null;
 
-async function getUserRole(userId) {
-  const { data, error } = await supabaseClient
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .single();
-
-  if (error || !data) return null;
-  return data.role;
-}
-
-function hasAccess(role, allowedRoles) {
-  return allowedRoles.includes(role);
-}
-
-function showMealDetails(index) {
-  const item = expectedItems[index];
-  if (!item) return;
-
-  mealDetails.innerHTML = `
-    <b>Posiłek:</b> ${item.meal || "-"}<br>
-    <b>Kod:</b> ${item.code || "-"}<br>
-    <b>Rozmiar:</b> ${item.size || "-"}<br>
-    <b>QR tacki:</b> ${item.tray_qr || "-"}<br><br>
-    <b>Nazwa dania:</b><br>
-    ${item.dish_name || "-"}
-  `;
-
-  mealModal.classList.remove("hidden");
-}
-
-function closeMealDetails() {
-  mealModal.classList.add("hidden");
-}
-
-function sound(type) {
-  try {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-    if (type === "ok") playTone(900, 0.08, 0.08);
-    if (type === "bad") playTone(180, 0.18, 1.25);
-    if (type === "warn") playTone(450, 0.12, 0.18);
-    if (type === "done") {
-      playTone(1000, 0.09, 0.10);
-      setTimeout(() => playTone(1300, 0.09, 0.12), 120);
-    }
-  } catch(e) {}
-}
-
-function keepFocus(input) {
-  document.addEventListener("click", () => {
-    if (!input.classList.contains("hidden")) {
-      setTimeout(() => input.focus(), 50);
-    }
-  });
-}
-
-function playTone(freq, volume, duration) {
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.frequency.value = freq;
-  gain.gain.value = volume;
-  osc.start();
-  osc.stop(audioCtx.currentTime + duration);
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, m => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+  }[m]));
 }
 
 function normalizeCode(value) {
@@ -704,64 +603,55 @@ function normalizeCode(value) {
     .replaceAll("Ż","Z");
 }
 
+function displayLogin(value) {
+  return String(value || "").toLowerCase().replace(LOGIN_DOMAIN, "");
+}
+
+async function getUserRole(userId) {
+  const { data, error } = await supabaseClient
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .single();
+
+  if (error || !data) return null;
+  return data.role;
+}
+
+function hasAccess(role, allowedRoles) {
+  return allowedRoles.includes(role);
+}
+
 function showOnly(id) {
   ["loginScreen","bagScreen","trayScreen"].forEach(x => {
     document.getElementById(x).classList.add("hidden");
   });
   document.getElementById(id).classList.remove("hidden");
 }
-  
-async function autoLogout() {
+
+function sound(type) {
   try {
-    await supabaseClient.auth.signOut();
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    if (type === "ok") playTone(900, 0.08, 0.08);
+    if (type === "bad") playTone(180, 0.18, 1.25);
+    if (type === "warn") playTone(450, 0.12, 0.18);
+    if (type === "done") {
+      playTone(1000, 0.09, 0.10);
+      setTimeout(() => playTone(1300, 0.09, 0.12), 120);
+    }
   } catch(e) {}
-
-  if (logoutTimer) {
-    clearTimeout(logoutTimer);
-    logoutTimer = null;
-  }
-
-  currentUser = null;
-  currentBag = null;
-  expectedItems = [];
-  scanned = [];
-  wrong = [];
-  duplicates = [];
-  startedAt = null;
-  isClosing = false;
-
-  bagInput.value = "";
-  trayInput.value = "";
-  status.innerText = "";
-  status.className = "trayStatus";
-
-  showOnly("loginScreen");
-
-  loginStatus.innerText = "Sesja wygasła po 8 godzinach pracy. Zaloguj się ponownie.";
-  loginStatus.className = "loginStatus error";
-
-  setTimeout(() => {
-    email.focus();
-  }, 100);
 }
 
-function startLogoutTimer() {
-  if (logoutTimer) clearTimeout(logoutTimer);
-
-  logoutTimer = setTimeout(() => {
-    autoLogout();
-  }, 8 * 60 * 60 * 1000);
-}
-  
-function focusBagInput() {
-  setTimeout(() => {
-    bagInput.focus();
-    bagInput.click();
-  }, 50);
-
-  setTimeout(() => {
-    bagInput.focus();
-  }, 300);
+function playTone(freq, volume, duration) {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.frequency.value = freq;
+  gain.gain.value = volume;
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
 }
 
 function getLoginEmail(loginValue) {
@@ -788,6 +678,58 @@ function showLoginMessage(text, type = "error") {
   loginStatus.className = "loginStatus " + type;
 }
 
+function focusBagInput() {
+  setTimeout(() => {
+    bagInput.focus();
+    bagInput.click();
+  }, 50);
+
+  setTimeout(() => {
+    bagInput.focus();
+  }, 300);
+}
+
+function focusTrayInput() {
+  setTimeout(() => {
+    trayInput.focus();
+    trayInput.click();
+  }, 50);
+
+  setTimeout(() => {
+    trayInput.focus();
+  }, 300);
+}
+
+function startLogoutTimer() {
+  if (logoutTimer) clearTimeout(logoutTimer);
+
+  logoutTimer = setTimeout(() => {
+    autoLogout();
+  }, 8 * 60 * 60 * 1000);
+}
+
+async function autoLogout() {
+  try {
+    await supabaseClient.auth.signOut();
+  } catch(e) {}
+
+  if (logoutTimer) {
+    clearTimeout(logoutTimer);
+    logoutTimer = null;
+  }
+
+  clearPackingState();
+
+  currentUser = null;
+
+  showOnly("loginScreen");
+
+  loginStatus.innerText = "Sesja wygasła po 8 godzinach pracy. Zaloguj się ponownie.";
+  loginStatus.className = "loginStatus error";
+
+  setTimeout(() => email.focus(), 100);
+}
+
 email.addEventListener("keydown", e => {
   if (e.key === "Enter") password.focus();
 });
@@ -802,6 +744,13 @@ bagInput.addEventListener("keydown", e => {
 
 trayInput.addEventListener("keydown", e => {
   if (e.key === "Enter") scanTray();
+});
+
+document.addEventListener("click", () => {
+  setTimeout(() => {
+    if (!bagScreen.classList.contains("hidden")) bagInput.focus();
+    if (!trayScreen.classList.contains("hidden")) trayInput.focus();
+  }, 50);
 });
 
 async function login() {
@@ -871,8 +820,9 @@ async function loadBag() {
 
   const { data, error } = await supabaseClient
     .from("packing_plan")
-    .select("*")
-    .eq("bag_qr", bag);
+    .select("id, bag_qr, tray_qr, meal, code, size, dish_name")
+    .eq("bag_qr", bag)
+    .order("id", { ascending:true });
 
   if (error || !data || !data.length) {
     bagStatus.innerText = "❌ Brak torby";
@@ -882,10 +832,10 @@ async function loadBag() {
     return;
   }
 
-const { data: sessions, error: sessionError } = await supabaseClient
-  .rpc("get_bag_sessions_for_packing", {
-    target_bag: bag
-  });
+  const { data: sessions, error: sessionError } = await supabaseClient
+    .rpc("get_bag_sessions_for_packing", {
+      target_bag: bag
+    });
 
   if (sessionError) {
     bagStatus.innerText = "❌ Błąd sprawdzania historii torby";
@@ -901,17 +851,18 @@ const { data: sessions, error: sessionError } = await supabaseClient
     const last = sessions[0];
 
     duplicateBagInfo.innerHTML = `
-      Kod torby: <b>${bag}</b><br><br>
+      Kod torby: <b>${escapeHtml(bag)}</b><br><br>
       Ostatni zapis:<br>
-      Status: <b>${last.status || "-"}</b><br>
-      Pracownik: <b>${last.user_login || "-"}</b><br>
-      Zamknięto: <b>${last.closed_at ? new Date(last.closed_at).toLocaleString("pl-PL") : "-"}</b><br><br>
-      Liczba wcześniejszych zapisów tej torby: <b>${sessions.length}</b>
+      Status: <b>${escapeHtml(last.status || "-")}</b><br>
+      Pracownik: <b>${escapeHtml(displayLogin(last.user_login || "-"))}</b><br>
+      Zamknięto: <b>${last.closed_at ? escapeHtml(new Date(last.closed_at).toLocaleString("pl-PL")) : "-"}</b><br><br>
+      Liczba wcześniejszych zapisów tej torby: <b>${sessions.length}</b><br><br>
+      Opcja „Pakuj ponownie” usuwa tylko ostatni zapis tej torby.
     `;
 
     duplicateBagModal.classList.remove("hidden");
     bagStatus.innerText = "";
-    sound("bad");
+    sound("warn");
     return;
   }
 
@@ -920,10 +871,20 @@ const { data: sessions, error: sessionError } = await supabaseClient
 
 function startBagPacking(bag, data) {
   currentBag = bag;
-  expectedItems = data;
-  scanned = [];
+  expectedItems = (data || []).map(x => ({
+    id: x.id,
+    bag_qr: x.bag_qr,
+    tray_qr: x.tray_qr,
+    meal: x.meal,
+    code: x.code,
+    size: x.size,
+    dish_name: x.dish_name
+  }));
+
+  correctScans = [];
   wrong = [];
   duplicates = [];
+  allScans = [];
   startedAt = new Date();
   isClosing = false;
 
@@ -932,11 +893,12 @@ function startBagPacking(bag, data) {
   bagStatus.innerText = "";
   status.innerText = "Skanuj tacki";
   status.className = "trayStatus";
+  badCloseBtn.disabled = false;
 
   showOnly("trayScreen");
   render();
   sound("ok");
-  setTimeout(() => trayInput.focus(), 100);
+  focusTrayInput();
 }
 
 function cancelDuplicateBag() {
@@ -955,7 +917,7 @@ async function replaceOldBagSession() {
   if (!pendingBag) return;
 
   duplicateBagModal.classList.add("hidden");
-  bagStatus.innerText = "Usuwam stare zapisy...";
+  bagStatus.innerText = "Usuwam ostatni zapis tej torby...";
 
   const { error } = await supabaseClient
     .rpc("delete_bag_sessions_for_repack", {
@@ -963,7 +925,7 @@ async function replaceOldBagSession() {
     });
 
   if (error) {
-    bagStatus.innerText = "❌ Nie udało się usunąć starego zapisu: " + error.message;
+    bagStatus.innerText = "❌ Nie udało się usunąć ostatniego zapisu: " + error.message;
     sound("bad");
     return;
   }
@@ -993,25 +955,59 @@ function packAnotherSameBag() {
   startBagPacking(bag, data);
 }
 
-function getExpectedNormalized() {
-  return expectedItems.map(x => normalizeCode(x.tray_qr));
+function getCorrectItemIds() {
+  return correctScans.map(x => x.plan_item_id);
 }
 
-function getCorrect() {
-  const expected = getExpectedNormalized();
-  return [...new Set(scanned.map(normalizeCode).filter(x => expected.includes(x)))];
+function getCorrectCount() {
+  return correctScans.length;
 }
 
 function getMissing() {
-  const correct = getCorrect();
-  return expectedItems.filter(x => !correct.includes(normalizeCode(x.tray_qr)));
+  const doneIds = getCorrectItemIds();
+  return expectedItems.filter(x => !doneIds.includes(x.id));
+}
+
+function findNextExpectedItemForScan(scannedValue) {
+  const normalized = normalizeCode(scannedValue);
+  const doneIds = getCorrectItemIds();
+
+  return expectedItems.find(item =>
+    normalizeCode(item.tray_qr) === normalized &&
+    !doneIds.includes(item.id)
+  );
+}
+
+function expectedContainsQr(scannedValue) {
+  const normalized = normalizeCode(scannedValue);
+  return expectedItems.some(item => normalizeCode(item.tray_qr) === normalized);
+}
+
+function showMealDetails(index) {
+  const item = expectedItems[index];
+  if (!item) return;
+
+  mealDetails.innerHTML = `
+    <b>Posiłek:</b> ${escapeHtml(item.meal || "-")}<br>
+    <b>Kod:</b> ${escapeHtml(item.code || "-")}<br>
+    <b>Rozmiar:</b> ${escapeHtml(item.size || "-")}<br>
+    <b>QR tacki:</b> ${escapeHtml(item.tray_qr || "-")}<br><br>
+    <b>Nazwa dania:</b><br>
+    ${escapeHtml(item.dish_name || "-")}
+  `;
+
+  mealModal.classList.remove("hidden");
+}
+
+function closeMealDetails() {
+  mealModal.classList.add("hidden");
 }
 
 function render() {
-  const correct = getCorrect();
+  const doneIds = getCorrectItemIds();
   const missing = getMissing();
 
-  expectedProgress.innerText = correct.length + "/" + expectedItems.length;
+  expectedProgress.innerText = getCorrectCount() + "/" + expectedItems.length;
 
   expectedList.innerHTML = `
     <table>
@@ -1024,16 +1020,16 @@ function render() {
       </thead>
       <tbody>
         ${expectedItems.map((i, index) => {
-          const done = correct.includes(normalizeCode(i.tray_qr));
+          const done = doneIds.includes(i.id);
           return `
             <tr class="${done ? "done" : "missing"}">
               <td>
                 <span class="mealClick" onclick="showMealDetails(${index})">
-                  ${i.meal || ""}
+                  ${escapeHtml(i.meal || "")}
                 </span>
               </td>
-              <td>${i.code || ""}</td>
-              <td>${i.size || ""}</td>
+              <td>${escapeHtml(i.code || "")}</td>
+              <td>${escapeHtml(i.size || "")}</td>
             </tr>
           `;
         }).join("")}
@@ -1047,7 +1043,7 @@ function render() {
       <div class="problemBox">
         <div class="problemBoxHeader">Brakujące:</div>
         <div class="problemBoxBody">
-          ${missing.length ? missing.map(x => x.tray_qr).join("<br>") : "-"}
+          ${missing.length ? missing.map(x => escapeHtml(x.tray_qr)).join("<br>") : "-"}
         </div>
       </div>
 
@@ -1056,7 +1052,7 @@ function render() {
         <div class="problemBoxBody">
           ${wrong.length ? wrong.map((x, i) => `
             <div>
-              ${x}
+              ${escapeHtml(x)}
               <button onclick="removeWrong(${i})">Usuń</button>
             </div>
           `).join("") : "-"}
@@ -1068,7 +1064,7 @@ function render() {
         <div class="problemBoxBody">
           ${duplicates.length ? duplicates.map((x, i) => `
             <div>
-              ${x}
+              ${escapeHtml(x)}
               <button onclick="removeDuplicate(${i})">Usuń</button>
             </div>
           `).join("") : "-"}
@@ -1083,51 +1079,59 @@ async function scanTray() {
   const val = trayInput.value.trim();
   if (!val || isClosing) return;
 
-  const tray = normalizeCode(val);
-  const expected = getExpectedNormalized();
+  const matchingItem = findNextExpectedItemForScan(val);
 
-  if (scanned.map(normalizeCode).includes(tray)) {
-    duplicates.push(val);
-    status.innerText = "⚠️ Duplikat: " + val;
-    status.className = "trayStatus warn";
-    trayInput.value = "";
-    render();
-    trayInput.focus();
-    sound("bad");
-    return;
-  }
+  allScans.push(val);
 
-  scanned.push(val);
+  if (!matchingItem) {
+    if (expectedContainsQr(val)) {
+      duplicates.push(val);
+      status.innerText = "⚠️ Duplikat / nadmiarowa tacka: " + val;
+      status.className = "trayStatus warn";
+      trayInput.value = "";
+      render();
+      focusTrayInput();
+      sound("bad");
+      return;
+    }
 
-  if (!expected.includes(tray)) {
     wrong.push(val);
     status.innerText = "❌ Zła tacka: " + val;
     status.className = "trayStatus bad";
     trayInput.value = "";
     render();
-    trayInput.focus();
+    focusTrayInput();
     sound("bad");
     return;
   }
+
+  correctScans.push({
+    plan_item_id: matchingItem.id,
+    tray_qr: val,
+    expected_tray_qr: matchingItem.tray_qr
+  });
 
   status.innerText = "✅ OK: " + val;
   status.className = "trayStatus ok";
 
   trayInput.value = "";
   render();
-  trayInput.focus();
+  focusTrayInput();
   sound("ok");
 
   await checkAutoClose();
 }
 
+function removeFirstFromArrayByNormalizedValue(arr, value) {
+  const normalized = normalizeCode(value);
+  const index = arr.findIndex(x => normalizeCode(x) === normalized);
+  if (index >= 0) arr.splice(index, 1);
+}
+
 function removeWrong(index) {
   const removed = wrong[index];
   wrong.splice(index, 1);
-
-  const normalizedRemoved = normalizeCode(removed);
-  const scannedIndex = scanned.findIndex(x => normalizeCode(x) === normalizedRemoved);
-  if (scannedIndex >= 0) scanned.splice(scannedIndex, 1);
+  removeFirstFromArrayByNormalizedValue(allScans, removed);
 
   status.innerText = "Usunięto błędną tackę: " + removed;
   status.className = "trayStatus warn";
@@ -1139,6 +1143,7 @@ function removeWrong(index) {
 function removeDuplicate(index) {
   const removed = duplicates[index];
   duplicates.splice(index, 1);
+  removeFirstFromArrayByNormalizedValue(allScans, removed);
 
   status.innerText = "Usunięto duplikat: " + removed;
   status.className = "trayStatus warn";
@@ -1165,23 +1170,36 @@ async function closeBagCorrect() {
   status.className = "trayStatus ok";
   sound("done");
 
-  await save("POPRAWNA");
+  const saved = await save("POPRAWNA");
+  if (!saved) return;
 
   setTimeout(reset, 800);
 }
 
 async function closeBagBad() {
+  if (!currentBag || isClosing) return;
+
   isClosing = true;
-  sound("done");
-  await save("NIEPOPRAWNA");
+  badCloseBtn.disabled = true;
+  status.innerText = "Zapisuję torbę jako niepoprawną...";
+  status.className = "trayStatus warn";
+  sound("warn");
+
+  const saved = await save("NIEPOPRAWNA");
+  if (!saved) {
+    badCloseBtn.disabled = false;
+    return;
+  }
+
   reset();
 }
 
 async function save(st) {
   const closedAt = new Date();
   const durationSeconds = startedAt ? Math.round((closedAt - startedAt) / 1000) : null;
+  const missing = getMissing();
 
-  await supabaseClient.from("packing_sessions").insert({
+  const { error } = await supabaseClient.from("packing_sessions").insert({
     bag_qr: currentBag,
     user_id: currentUser.id,
     user_login: currentUser.email,
@@ -1189,21 +1207,32 @@ async function save(st) {
     started_at: startedAt ? startedAt.toISOString() : new Date().toISOString(),
     closed_at: closedAt.toISOString(),
     expected_count: expectedItems.length,
-    correct_count: getCorrect().length,
-    all_scans: scanned.join(" | "),
-    missing_trays: getMissing().map(x => x.tray_qr).join(" | ") || "-",
+    correct_count: getCorrectCount(),
+    all_scans: allScans.join(" | ") || "-",
+    missing_trays: missing.map(x => x.tray_qr).join(" | ") || "-",
     wrong_trays: wrong.join(" | ") || "-",
     duplicate_trays: duplicates.join(" | ") || "-",
     duration_seconds: durationSeconds
   });
+
+  if (error) {
+    status.innerText = "❌ Nie zapisano wyniku. Nie skanuj kolejnej torby. " + error.message;
+    status.className = "trayStatus bad";
+    sound("bad");
+    isClosing = false;
+    return false;
+  }
+
+  return true;
 }
 
-function reset() {
+function clearPackingState() {
   currentBag = null;
   expectedItems = [];
-  scanned = [];
+  correctScans = [];
   wrong = [];
   duplicates = [];
+  allScans = [];
   startedAt = null;
   isClosing = false;
 
@@ -1211,13 +1240,14 @@ function reset() {
   trayInput.value = "";
   status.innerText = "";
   status.className = "trayStatus";
+  badCloseBtn.disabled = false;
+}
 
+function reset() {
+  clearPackingState();
   showOnly("bagScreen");
   focusBagInput();
 }
-
-keepFocus(bagInput);
-keepFocus(trayInput);
 </script>
 
 </body>
