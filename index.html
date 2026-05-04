@@ -20,6 +20,7 @@
       --green:#16a34a;
       --red:#dc2626;
       --orange:#f59e0b;
+      --yellow:#facc15;
       --shadow:0 10px 35px rgba(0,0,0,.08);
     }
 
@@ -64,6 +65,7 @@
     th { background:#e5e7eb; }
     tr.done { background:#dcfce7; }
     tr.missing { background:white; }
+    tr.brakiRow { background:#fffbeb; }
 
     .ok { color:green; }
     .bad { color:red; }
@@ -220,7 +222,19 @@
       border:1px solid var(--border);
       padding:22px;
       border-radius:18px;
-      margin-bottom:26px;
+      margin-bottom:18px;
+    }
+
+    .resumeBanner {
+      background:#fffbeb;
+      border:2px solid #fde68a;
+      color:#92400e;
+      border-radius:18px;
+      padding:16px 18px;
+      font-size:20px;
+      font-weight:bold;
+      line-height:1.4;
+      margin-bottom:18px;
     }
 
     .traySmallLabel {
@@ -261,13 +275,13 @@
     }
 
     .actionButtons {
-      display:flex;
+      display:grid;
+      grid-template-columns:1fr 1.3fr 1.6fr;
       gap:12px;
       margin:10px 0 14px;
     }
 
     .cancelBtn {
-      flex:1;
       font-size:20px;
       padding:16px;
       border-radius:14px;
@@ -280,10 +294,23 @@
 
     .cancelBtn:hover { background:#d1d5db; }
 
-    .fullBtn {
-      flex:2;
+    .brakiBtn {
       width:100%;
-      font-size:22px;
+      font-size:21px;
+      padding:16px;
+      margin:0;
+      background:#f59e0b;
+      color:white;
+      border:none;
+      border-radius:14px;
+      font-weight:bold;
+    }
+
+    .brakiBtn:hover { background:#d97706; }
+
+    .fullBtn {
+      width:100%;
+      font-size:21px;
       padding:16px;
       margin:0;
       background:#ef4444;
@@ -357,6 +384,11 @@
       font-weight:bold;
     }
 
+    .problemBoxHeader.braki {
+      background:#fef3c7;
+      color:#92400e;
+    }
+
     .problemBoxBody {
       padding:18px;
       line-height:1.45;
@@ -387,7 +419,7 @@
       padding:28px;
       border-radius:18px;
       width:90%;
-      max-width:650px;
+      max-width:680px;
       max-height:90vh;
       overflow:auto;
     }
@@ -415,6 +447,11 @@
       color:white;
     }
 
+    .btnBraki {
+      background:#f59e0b;
+      color:white;
+    }
+
     @media(max-width:800px){
       body { padding:12px; }
 
@@ -431,10 +468,11 @@
       }
 
       .actionButtons {
-        flex-direction:column;
+        grid-template-columns:1fr;
       }
 
       .cancelBtn,
+      .brakiBtn,
       .fullBtn {
         width:100%;
       }
@@ -504,6 +542,8 @@
     <img src="tacka.png" class="trayIcon" alt="tacka">
   </h1>
 
+  <div id="resumeBanner" class="resumeBanner hidden"></div>
+
   <div class="trayHeaderBox">
     <div>
       <div class="traySmallLabel">Aktualna torba</div>
@@ -522,6 +562,7 @@
 
   <div class="actionButtons">
     <button class="cancelBtn" onclick="reset()">↩️ Anuluj</button>
+    <button id="brakiCloseBtn" class="brakiBtn" onclick="closeBagBraki()">🟡 BRAKI / do dopakowania</button>
     <button id="badCloseBtn" class="fullBtn" onclick="closeBagBad()">❌ Zamknij jako niepoprawną</button>
   </div>
 
@@ -535,9 +576,10 @@
 
 <div id="duplicateBagModal" class="modalBg hidden">
   <div class="modal">
-    <h2>⚠️ Torba była już pakowana</h2>
+    <h2 id="duplicateBagTitle">⚠️ Torba była już pakowana</h2>
     <p id="duplicateBagInfo"></p>
 
+    <button id="resumeBrakiBtn" class="modalBtn btnBraki hidden" onclick="resumeBrakiSession()">🟡 Dopakuj brakujące tacki</button>
     <button class="modalBtn btnCancel" onclick="cancelDuplicateBag()">Anuluj i wróć do skanowania toreb</button>
     <button class="modalBtn btnReplace" onclick="replaceOldBagSession()">Pakuj ponownie i usuń ostatni zapis</button>
     <button class="modalBtn btnAnother" onclick="packAnotherSameBag()">Pakuj kolejną z tym samym kodem</button>
@@ -574,6 +616,9 @@ let pendingBag = null;
 let pendingBagData = [];
 let existingBagSessions = [];
 
+let resumedSessionId = null;
+let resumedFromBraki = false;
+
 let audioCtx = null;
 let logoutTimer = null;
 
@@ -601,6 +646,13 @@ function normalizeCode(value) {
     .replaceAll("Ó","O")
     .replaceAll("Ź","Z")
     .replaceAll("Ż","Z");
+}
+
+function normalizeStatus(statusValue) {
+  const value = String(statusValue || "").toUpperCase().trim();
+  if (value === "NIEPRAWIDŁOWA") return "NIEPOPRAWNA";
+  if (value === "DO_DOPAKOWANIA" || value === "DO DOPAKOWANIA") return "BRAKI";
+  return value;
 }
 
 function displayLogin(value) {
@@ -812,6 +864,36 @@ async function login() {
   }, 400);
 }
 
+async function getBagSessionsForPacking(bag) {
+  let rows = [];
+
+  const { data: rpcRows, error: rpcError } = await supabaseClient
+    .rpc("get_bag_sessions_for_packing", {
+      target_bag: bag
+    });
+
+  if (rpcError) {
+    throw rpcError;
+  }
+
+  rows = rpcRows || [];
+
+  try {
+    const { data: directRows, error: directError } = await supabaseClient
+      .from("packing_sessions")
+      .select("id, status, user_login, closed_at, started_at")
+      .eq("bag_qr", bag)
+      .order("closed_at", { ascending:false })
+      .limit(20);
+
+    if (!directError && directRows && directRows.length) {
+      rows = directRows;
+    }
+  } catch(e) {}
+
+  return rows;
+}
+
 async function loadBag() {
   const bag = bagInput.value.trim();
   if (!bag) return;
@@ -832,13 +914,12 @@ async function loadBag() {
     return;
   }
 
-  const { data: sessions, error: sessionError } = await supabaseClient
-    .rpc("get_bag_sessions_for_packing", {
-      target_bag: bag
-    });
+  let sessions = [];
 
-  if (sessionError) {
-    bagStatus.innerText = "❌ Błąd sprawdzania historii torby";
+  try {
+    sessions = await getBagSessionsForPacking(bag);
+  } catch(sessionError) {
+    bagStatus.innerText = "❌ Błąd sprawdzania historii torby: " + sessionError.message;
     sound("bad");
     return;
   }
@@ -849,27 +930,38 @@ async function loadBag() {
     existingBagSessions = sessions;
 
     const last = sessions[0];
+    const lastStatus = normalizeStatus(last.status);
+    const canResumeBraki = lastStatus === "BRAKI" && !!last.id;
+
+    duplicateBagTitle.innerText = canResumeBraki
+      ? "🟡 Torba jest oznaczona jako BRAKI"
+      : "⚠️ Torba była już pakowana";
 
     duplicateBagInfo.innerHTML = `
       Kod torby: <b>${escapeHtml(bag)}</b><br><br>
       Ostatni zapis:<br>
-      Status: <b>${escapeHtml(last.status || "-")}</b><br>
+      Status: <b>${escapeHtml(lastStatus || "-")}</b><br>
       Pracownik: <b>${escapeHtml(displayLogin(last.user_login || "-"))}</b><br>
       Zamknięto: <b>${last.closed_at ? escapeHtml(new Date(last.closed_at).toLocaleString("pl-PL")) : "-"}</b><br><br>
       Liczba wcześniejszych zapisów tej torby: <b>${sessions.length}</b><br><br>
-      Opcja „Pakuj ponownie” usuwa tylko ostatni zapis tej torby.
+      ${canResumeBraki
+        ? "Możesz dopakować tylko brakujące tacki. Już poprawnie zeskanowane pozycje zostaną zachowane."
+        : "Opcja „Pakuj ponownie” usuwa ostatni zapis tej torby."
+      }
     `;
+
+    resumeBrakiBtn.classList.toggle("hidden", !canResumeBraki);
 
     duplicateBagModal.classList.remove("hidden");
     bagStatus.innerText = "";
-    sound("warn");
+    sound(canResumeBraki ? "warn" : "warn");
     return;
   }
 
   startBagPacking(bag, data);
 }
 
-function startBagPacking(bag, data) {
+function startBagPacking(bag, data, options = {}) {
   currentBag = bag;
   expectedItems = (data || []).map(x => ({
     id: x.id,
@@ -887,17 +979,39 @@ function startBagPacking(bag, data) {
   allScans = [];
   startedAt = new Date();
   isClosing = false;
+  resumedSessionId = options.resumedSessionId || null;
+  resumedFromBraki = !!options.resumedFromBraki;
+
+  if (Array.isArray(options.preloadedCorrectScans)) {
+    correctScans = options.preloadedCorrectScans;
+    allScans = correctScans
+      .map(x => x.tray_qr)
+      .filter(Boolean);
+  }
 
   currentBagLabel.innerText = bag;
   bagInput.value = "";
   bagStatus.innerText = "";
-  status.innerText = "Skanuj tacki";
-  status.className = "trayStatus";
+  status.innerText = resumedFromBraki
+    ? "Dopakuj brakujące tacki"
+    : "Skanuj tacki";
+  status.className = resumedFromBraki ? "trayStatus warn" : "trayStatus";
+
   badCloseBtn.disabled = false;
+  brakiCloseBtn.disabled = false;
+
+  if (resumedFromBraki) {
+    resumeBanner.classList.remove("hidden");
+    resumeBanner.innerText =
+      "🟡 Tryb dopakowania BRAKI. Poprawnie spakowane wcześniej tacki są już zaznaczone. Zeskanuj tylko brakujące pozycje.";
+  } else {
+    resumeBanner.classList.add("hidden");
+    resumeBanner.innerText = "";
+  }
 
   showOnly("trayScreen");
   render();
-  sound("ok");
+  sound(resumedFromBraki ? "warn" : "ok");
   focusTrayInput();
 }
 
@@ -907,16 +1021,86 @@ function cancelDuplicateBag() {
   existingBagSessions = [];
 
   duplicateBagModal.classList.add("hidden");
+  resumeBrakiBtn.classList.add("hidden");
   bagInput.value = "";
   bagStatus.innerText = "";
   showOnly("bagScreen");
   focusBagInput();
 }
 
+async function resumeBrakiSession() {
+  if (!pendingBag || !pendingBagData || !existingBagSessions.length) return;
+
+  const last = existingBagSessions[0];
+
+  if (!last.id) {
+    duplicateBagInfo.innerHTML += `<br><br><b style="color:#991b1b;">Nie mogę dopakować tej torby, bo funkcja historii nie zwróciła ID sesji.</b>`;
+    sound("bad");
+    return;
+  }
+
+  duplicateBagModal.classList.add("hidden");
+  bagStatus.innerText = "Ładuję poprzednio spakowane tacki...";
+
+  let details = [];
+
+  const { data, error } = await supabaseClient.rpc("get_report_session_details", {
+    target_session_id: last.id
+  });
+
+  if (error) {
+    bagStatus.innerText = "❌ Nie udało się pobrać szczegółów BRAKI: " + error.message;
+    showOnly("bagScreen");
+    focusBagInput();
+    sound("bad");
+    return;
+  }
+
+  details = data || [];
+
+  const preloadedCorrectScans = [];
+
+  details
+    .filter(row => String(row.item_status || "").toLowerCase() === "ok")
+    .forEach(row => {
+      const item = pendingBagData.find(x =>
+        Number(x.id) === Number(row.plan_item_id) ||
+        (
+          normalizeCode(x.tray_qr) === normalizeCode(row.tray_qr) &&
+          !preloadedCorrectScans.some(s => Number(s.plan_item_id) === Number(x.id))
+        )
+      );
+
+      if (!item) return;
+
+      preloadedCorrectScans.push({
+        plan_item_id: item.id,
+        tray_qr: row.scanned_tray_qr || item.tray_qr,
+        expected_tray_qr: item.tray_qr,
+        scanned_at: row.scanned_at || new Date().toISOString(),
+        restored: true
+      });
+    });
+
+  const bag = pendingBag;
+  const bagData = pendingBagData;
+
+  pendingBag = null;
+  pendingBagData = [];
+  existingBagSessions = [];
+
+  startBagPacking(bag, bagData, {
+    resumedSessionId: last.id,
+    resumedFromBraki: true,
+    preloadedCorrectScans
+  });
+}
+
 async function replaceOldBagSession() {
   if (!pendingBag) return;
 
   duplicateBagModal.classList.add("hidden");
+  resumeBrakiBtn.classList.add("hidden");
   bagStatus.innerText = "Usuwam ostatni zapis tej torby...";
 
   const { error } = await supabaseClient
@@ -944,6 +1128,7 @@ function packAnotherSameBag() {
   if (!pendingBag) return;
 
   duplicateBagModal.classList.add("hidden");
+  resumeBrakiBtn.classList.add("hidden");
 
   const bag = pendingBag;
   const data = pendingBagData;
@@ -956,7 +1141,7 @@ function packAnotherSameBag() {
 }
 
 function getCorrectItemIds() {
-  return correctScans.map(x => x.plan_item_id);
+  return correctScans.map(x => Number(x.plan_item_id));
 }
 
 function getCorrectCount() {
@@ -965,7 +1150,7 @@ function getCorrectCount() {
 
 function getMissing() {
   const doneIds = getCorrectItemIds();
-  return expectedItems.filter(x => !doneIds.includes(x.id));
+  return expectedItems.filter(x => !doneIds.includes(Number(x.id)));
 }
 
 function findNextExpectedItemForScan(scannedValue) {
@@ -974,7 +1159,7 @@ function findNextExpectedItemForScan(scannedValue) {
 
   return expectedItems.find(item =>
     normalizeCode(item.tray_qr) === normalized &&
-    !doneIds.includes(item.id)
+    !doneIds.includes(Number(item.id))
   );
 }
 
@@ -987,7 +1172,10 @@ function showMealDetails(index) {
   const item = expectedItems[index];
   if (!item) return;
 
+  const isDone = getCorrectItemIds().includes(Number(item.id));
+
   mealDetails.innerHTML = `
+    <b>Status:</b> ${isDone ? "✅ Spakowane" : "🟡 Brakujące / do spakowania"}<br>
     <b>Posiłek:</b> ${escapeHtml(item.meal || "-")}<br>
     <b>Kod:</b> ${escapeHtml(item.code || "-")}<br>
     <b>Rozmiar:</b> ${escapeHtml(item.size || "-")}<br>
@@ -1013,6 +1201,7 @@ function render() {
     <table>
       <thead>
         <tr>
+          <th>Status</th>
           <th>Posiłek</th>
           <th>Kod</th>
           <th>Rozmiar</th>
@@ -1020,9 +1209,10 @@ function render() {
       </thead>
       <tbody>
         ${expectedItems.map((i, index) => {
-          const done = doneIds.includes(i.id);
+          const done = doneIds.includes(Number(i.id));
           return `
-            <tr class="${done ? "done" : "missing"}">
+            <tr class="${done ? "done" : resumedFromBraki ? "brakiRow" : "missing"}">
+              <td>${done ? "✅" : "🟡"}</td>
               <td>
                 <span class="mealClick" onclick="showMealDetails(${index})">
                   ${escapeHtml(i.meal || "")}
@@ -1041,7 +1231,7 @@ function render() {
     <div class="problemsGrid">
 
       <div class="problemBox">
-        <div class="problemBoxHeader">Brakujące:</div>
+        <div class="problemBoxHeader braki">Brakujące / do dopakowania:</div>
         <div class="problemBoxBody">
           ${missing.length ? missing.map(x => escapeHtml(x.tray_qr)).join("<br>") : "-"}
         </div>
@@ -1080,6 +1270,7 @@ async function scanTray() {
   if (!val || isClosing) return;
 
   const matchingItem = findNextExpectedItemForScan(val);
+  const scannedAt = new Date().toISOString();
 
   allScans.push(val);
 
@@ -1108,7 +1299,9 @@ async function scanTray() {
   correctScans.push({
     plan_item_id: matchingItem.id,
     tray_qr: val,
-    expected_tray_qr: matchingItem.tray_qr
+    expected_tray_qr: matchingItem.tray_qr,
+    scanned_at: scannedAt,
+    restored: false
   });
 
   status.innerText = "✅ OK: " + val;
@@ -1166,7 +1359,9 @@ async function checkAutoClose() {
 
 async function closeBagCorrect() {
   isClosing = true;
-  status.innerText = "🎉 TORBA GOTOWA";
+  status.innerText = resumedFromBraki
+    ? "🎉 BRAKI DOPAKOWANE — TORBA GOTOWA"
+    : "🎉 TORBA GOTOWA";
   status.className = "trayStatus ok";
   sound("done");
 
@@ -1176,17 +1371,35 @@ async function closeBagCorrect() {
   setTimeout(reset, 800);
 }
 
-async function closeBagBad() {
+async function closeBagBraki() {
   if (!currentBag || isClosing) return;
 
+  const missing = getMissing();
+
+  if (!missing.length && wrong.length === 0 && duplicates.length === 0) {
+    await closeBagCorrect();
+    return;
+  }
+
+  if (wrong.length || duplicates.length) {
+    status.innerText = "⚠️ Usuń błędne tacki / duplikaty albo zamknij torbę jako niepoprawną.";
+    status.className = "trayStatus warn";
+    sound("warn");
+    return;
+  }
+
   isClosing = true;
+  brakiCloseBtn.disabled = true;
   badCloseBtn.disabled = true;
-  status.innerText = "Zapisuję torbę jako niepoprawną...";
+
+  status.innerText = "Zapisuję torbę jako BRAKI / do dopakowania...";
   status.className = "trayStatus warn";
   sound("warn");
 
-  const saved = await save("NIEPOPRAWNA");
+  const saved = await save("BRAKI");
+
   if (!saved) {
+    brakiCloseBtn.disabled = false;
     badCloseBtn.disabled = false;
     return;
   }
@@ -1194,12 +1407,30 @@ async function closeBagBad() {
   reset();
 }
 
-async function save(st) {
-  const closedAt = new Date();
-  const durationSeconds = startedAt ? Math.round((closedAt - startedAt) / 1000) : null;
+async function closeBagBad() {
+  if (!currentBag || isClosing) return;
+
+  isClosing = true;
+  badCloseBtn.disabled = true;
+  brakiCloseBtn.disabled = true;
+  status.innerText = "Zapisuję torbę jako niepoprawną...";
+  status.className = "trayStatus warn";
+  sound("warn");
+
+  const saved = await save("NIEPOPRAWNA");
+  if (!saved) {
+    badCloseBtn.disabled = false;
+    brakiCloseBtn.disabled = false;
+    return;
+  }
+
+  reset();
+}
+
+function buildSessionPayload(st, closedAt, durationSeconds) {
   const missing = getMissing();
 
-  const { error } = await supabaseClient.from("packing_sessions").insert({
+  return {
     bag_qr: currentBag,
     user_id: currentUser.id,
     user_login: currentUser.email,
@@ -1213,17 +1444,122 @@ async function save(st) {
     wrong_trays: wrong.join(" | ") || "-",
     duplicate_trays: duplicates.join(" | ") || "-",
     duration_seconds: durationSeconds
+  };
+}
+
+function buildItemRows(sessionId, st, closedAt) {
+  const correctById = new Map();
+
+  correctScans.forEach(scan => {
+    correctById.set(Number(scan.plan_item_id), scan);
   });
 
-  if (error) {
+  const rows = [];
+
+  expectedItems.forEach(item => {
+    const correct = correctById.get(Number(item.id));
+
+    if (correct) {
+      rows.push({
+        session_id: sessionId,
+        plan_item_id: item.id,
+        bag_qr: currentBag,
+        tray_qr: item.tray_qr,
+        meal: item.meal,
+        code: item.code,
+        size: item.size,
+        dish_name: item.dish_name,
+        item_status: "ok",
+        scanned_tray_qr: correct.tray_qr,
+        scanned_by: currentUser.id,
+        scanned_by_email: currentUser.email,
+        scanned_at: correct.scanned_at || closedAt.toISOString()
+      });
+      return;
+    }
+
+    if (st === "BRAKI") {
+      rows.push({
+        session_id: sessionId,
+        plan_item_id: item.id,
+        bag_qr: currentBag,
+        tray_qr: item.tray_qr,
+        meal: item.meal,
+        code: item.code,
+        size: item.size,
+        dish_name: item.dish_name,
+        item_status: "brak",
+        missing_by: currentUser.id,
+        missing_by_email: currentUser.email,
+        missing_at: closedAt.toISOString()
+      });
+    }
+  });
+
+  return rows;
+}
+
+async function saveSessionRow(st, payload) {
+  if (resumedSessionId) {
+    const { data, error } = await supabaseClient
+      .from("packing_sessions")
+      .update(payload)
+      .eq("id", resumedSessionId)
+      .select("id")
+      .single();
+
+    if (error) throw error;
+    return data.id;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("packing_sessions")
+    .insert(payload)
+    .select("id")
+    .single();
+
+  if (error) throw error;
+  return data.id;
+}
+
+async function saveSessionItems(sessionId, rows) {
+  try {
+    await supabaseClient
+      .from("packing_session_items")
+      .delete()
+      .eq("session_id", sessionId);
+  } catch(e) {}
+
+  if (!rows.length) return;
+
+  const { error } = await supabaseClient
+    .from("packing_session_items")
+    .insert(rows);
+
+  if (error) throw error;
+}
+
+async function save(st) {
+  const closedAt = new Date();
+  const durationSeconds = startedAt ? Math.round((closedAt - startedAt) / 1000) : null;
+  const payload = buildSessionPayload(st, closedAt, durationSeconds);
+
+  try {
+    const sessionId = await saveSessionRow(st, payload);
+    const itemRows = buildItemRows(sessionId, st, closedAt);
+    await saveSessionItems(sessionId, itemRows);
+
+    resumedSessionId = sessionId;
+
+    return true;
+
+  } catch(error) {
     status.innerText = "❌ Nie zapisano wyniku. Nie skanuj kolejnej torby. " + error.message;
     status.className = "trayStatus bad";
     sound("bad");
     isClosing = false;
     return false;
   }
-
-  return true;
 }
 
 function clearPackingState() {
@@ -1235,12 +1571,18 @@ function clearPackingState() {
   allScans = [];
   startedAt = null;
   isClosing = false;
+  resumedSessionId = null;
+  resumedFromBraki = false;
 
   bagInput.value = "";
   trayInput.value = "";
   status.innerText = "";
   status.className = "trayStatus";
   badCloseBtn.disabled = false;
+  brakiCloseBtn.disabled = false;
+
+  resumeBanner.classList.add("hidden");
+  resumeBanner.innerText = "";
 }
 
 function reset() {
