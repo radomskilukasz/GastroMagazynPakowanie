@@ -20,7 +20,6 @@
       --green:#16a34a;
       --red:#dc2626;
       --orange:#f59e0b;
-      --yellow:#facc15;
       --shadow:0 10px 35px rgba(0,0,0,.08);
     }
 
@@ -42,6 +41,8 @@
       border-radius:12px;
       border:none;
       font-weight:bold;
+      position:relative;
+      z-index:2;
     }
 
     button:disabled {
@@ -275,13 +276,15 @@
     }
 
     .actionButtons {
-      display:grid;
-      grid-template-columns:1fr 1.3fr 1.6fr;
+      display:flex;
       gap:12px;
       margin:10px 0 14px;
+      position:relative;
+      z-index:1;
     }
 
     .cancelBtn {
+      flex:1;
       font-size:20px;
       padding:16px;
       border-radius:14px;
@@ -295,6 +298,7 @@
     .cancelBtn:hover { background:#d1d5db; }
 
     .brakiBtn {
+      flex:1.4;
       width:100%;
       font-size:21px;
       padding:16px;
@@ -309,6 +313,7 @@
     .brakiBtn:hover { background:#d97706; }
 
     .fullBtn {
+      flex:1.6;
       width:100%;
       font-size:21px;
       padding:16px;
@@ -447,11 +452,6 @@
       color:white;
     }
 
-    .btnBraki {
-      background:#f59e0b;
-      color:white;
-    }
-
     @media(max-width:800px){
       body { padding:12px; }
 
@@ -468,7 +468,7 @@
       }
 
       .actionButtons {
-        grid-template-columns:1fr;
+        flex-direction:column;
       }
 
       .cancelBtn,
@@ -514,7 +514,7 @@
   <label>Hasło</label>
   <input id="password" class="loginInput" type="password" placeholder="Wpisz hasło" autocomplete="current-password">
 
-  <button id="loginBtn" class="loginBtn" onclick="login()">Zaloguj</button>
+  <button id="loginBtn" type="button" class="loginBtn" onclick="login()">Zaloguj</button>
 
   <p id="loginStatus" class="loginStatus"></p>
 </div>
@@ -561,9 +561,9 @@
   <input id="trayInput" class="trayInputNew" placeholder="Zeskanuj kod tacki" autocomplete="off">
 
   <div class="actionButtons">
-    <button class="cancelBtn" onclick="reset()">↩️ Anuluj</button>
-    <button id="brakiCloseBtn" class="brakiBtn" onclick="closeBagBraki()">🟡 BRAKI / do dopakowania</button>
-    <button id="badCloseBtn" class="fullBtn" onclick="closeBagBad()">❌ Zamknij jako niepoprawną</button>
+    <button type="button" class="cancelBtn" onclick="event.preventDefault(); event.stopPropagation(); reset()">↩️ Anuluj</button>
+    <button type="button" id="brakiCloseBtn" class="brakiBtn" onclick="event.preventDefault(); event.stopPropagation(); closeBagBraki()">🟡 BRAKI / do dopakowania</button>
+    <button type="button" id="badCloseBtn" class="fullBtn" onclick="event.preventDefault(); event.stopPropagation(); closeBagBad()">❌ Zamknij jako niepoprawną</button>
   </div>
 
   <p id="status" class="trayStatus"></p>
@@ -579,10 +579,9 @@
     <h2 id="duplicateBagTitle">⚠️ Torba była już pakowana</h2>
     <p id="duplicateBagInfo"></p>
 
-    <button id="resumeBrakiBtn" class="modalBtn btnBraki hidden" onclick="resumeBrakiSession()">🟡 Dopakuj brakujące tacki</button>
-    <button class="modalBtn btnCancel" onclick="cancelDuplicateBag()">Anuluj i wróć do skanowania toreb</button>
-    <button class="modalBtn btnReplace" onclick="replaceOldBagSession()">Pakuj ponownie i usuń ostatni zapis</button>
-    <button class="modalBtn btnAnother" onclick="packAnotherSameBag()">Pakuj kolejną z tym samym kodem</button>
+    <button type="button" class="modalBtn btnCancel" onclick="event.preventDefault(); event.stopPropagation(); cancelDuplicateBag()">Anuluj i wróć do skanowania toreb</button>
+    <button type="button" class="modalBtn btnReplace" onclick="event.preventDefault(); event.stopPropagation(); replaceOldBagSession()">Pakuj ponownie i usuń ostatni zapis</button>
+    <button type="button" class="modalBtn btnAnother" onclick="event.preventDefault(); event.stopPropagation(); packAnotherSameBag()">Pakuj kolejną z tym samym kodem</button>
   </div>
 </div>
 
@@ -590,7 +589,7 @@
   <div class="modal">
     <h2>Szczegóły posiłku</h2>
     <p id="mealDetails"></p>
-    <button class="modalBtn btnCancel" onclick="closeMealDetails()">Zamknij</button>
+    <button type="button" class="modalBtn btnCancel" onclick="event.preventDefault(); event.stopPropagation(); closeMealDetails()">Zamknij</button>
   </div>
 </div>
 
@@ -798,7 +797,9 @@ trayInput.addEventListener("keydown", e => {
   if (e.key === "Enter") scanTray();
 });
 
-document.addEventListener("click", () => {
+document.addEventListener("click", event => {
+  if (event.target.closest("button")) return;
+
   setTimeout(() => {
     if (!bagScreen.classList.contains("hidden")) bagInput.focus();
     if (!trayScreen.classList.contains("hidden")) trayInput.focus();
@@ -881,7 +882,7 @@ async function getBagSessionsForPacking(bag) {
   try {
     const { data: directRows, error: directError } = await supabaseClient
       .from("packing_sessions")
-      .select("id, status, user_login, closed_at, started_at")
+      .select("id, status, user_login, closed_at, started_at, all_scans, missing_trays")
       .eq("bag_qr", bag)
       .order("closed_at", { ascending:false })
       .limit(20);
@@ -925,17 +926,20 @@ async function loadBag() {
   }
 
   if (sessions && sessions.length > 0) {
+    const last = sessions[0];
+    const lastStatus = normalizeStatus(last.status);
+
+    if (lastStatus === "BRAKI") {
+      bagStatus.innerText = "🟡 Otwieram torbę z braków...";
+      await resumeBrakiAutomatically(bag, data, last);
+      return;
+    }
+
     pendingBag = bag;
     pendingBagData = data;
     existingBagSessions = sessions;
 
-    const last = sessions[0];
-    const lastStatus = normalizeStatus(last.status);
-    const canResumeBraki = lastStatus === "BRAKI" && !!last.id;
-
-    duplicateBagTitle.innerText = canResumeBraki
-      ? "🟡 Torba jest oznaczona jako BRAKI"
-      : "⚠️ Torba była już pakowana";
+    duplicateBagTitle.innerText = "⚠️ Torba była już pakowana";
 
     duplicateBagInfo.innerHTML = `
       Kod torby: <b>${escapeHtml(bag)}</b><br><br>
@@ -944,21 +948,105 @@ async function loadBag() {
       Pracownik: <b>${escapeHtml(displayLogin(last.user_login || "-"))}</b><br>
       Zamknięto: <b>${last.closed_at ? escapeHtml(new Date(last.closed_at).toLocaleString("pl-PL")) : "-"}</b><br><br>
       Liczba wcześniejszych zapisów tej torby: <b>${sessions.length}</b><br><br>
-      ${canResumeBraki
-        ? "Możesz dopakować tylko brakujące tacki. Już poprawnie zeskanowane pozycje zostaną zachowane."
-        : "Opcja „Pakuj ponownie” usuwa ostatni zapis tej torby."
-      }
+      Opcja „Pakuj ponownie” usuwa ostatni zapis tej torby.
     `;
-
-    resumeBrakiBtn.classList.toggle("hidden", !canResumeBraki);
 
     duplicateBagModal.classList.remove("hidden");
     bagStatus.innerText = "";
-    sound(canResumeBraki ? "warn" : "warn");
+    sound("warn");
     return;
   }
 
   startBagPacking(bag, data);
+}
+
+async function resumeBrakiAutomatically(bag, bagData, lastSession) {
+  let preloadedCorrectScans = [];
+
+  if (lastSession.id) {
+    try {
+      const { data, error } = await supabaseClient.rpc("get_report_session_details", {
+        target_session_id: lastSession.id
+      });
+
+      if (!error && data && data.length) {
+        preloadedCorrectScans = buildCorrectScansFromDetails(data, bagData);
+      }
+    } catch(e) {}
+  }
+
+  if (!preloadedCorrectScans.length && lastSession.all_scans) {
+    preloadedCorrectScans = buildCorrectScansFromText(lastSession.all_scans, bagData);
+  }
+
+  startBagPacking(bag, bagData, {
+    resumedSessionId: lastSession.id || null,
+    resumedFromBraki: true,
+    preloadedCorrectScans
+  });
+}
+
+function buildCorrectScansFromDetails(details, bagData) {
+  const scans = [];
+  const usedIds = new Set();
+
+  details
+    .filter(row => String(row.item_status || "").toLowerCase() === "ok")
+    .forEach(row => {
+      const item = bagData.find(x => {
+        if (usedIds.has(Number(x.id))) return false;
+
+        return (
+          Number(x.id) === Number(row.plan_item_id) ||
+          normalizeCode(x.tray_qr) === normalizeCode(row.tray_qr) ||
+          normalizeCode(x.tray_qr) === normalizeCode(row.scanned_tray_qr)
+        );
+      });
+
+      if (!item) return;
+
+      usedIds.add(Number(item.id));
+
+      scans.push({
+        plan_item_id: item.id,
+        tray_qr: row.scanned_tray_qr || item.tray_qr,
+        expected_tray_qr: item.tray_qr,
+        scanned_at: row.scanned_at || new Date().toISOString(),
+        restored: true
+      });
+    });
+
+  return scans;
+}
+
+function buildCorrectScansFromText(text, bagData) {
+  const scans = [];
+  const usedIds = new Set();
+  const values = String(text || "")
+    .split("|")
+    .map(x => x.trim())
+    .filter(Boolean);
+
+  values.forEach(value => {
+    const item = bagData.find(x =>
+      !usedIds.has(Number(x.id)) &&
+      normalizeCode(x.tray_qr) === normalizeCode(value)
+    );
+
+    if (!item) return;
+
+    usedIds.add(Number(item.id));
+
+    scans.push({
+      plan_item_id: item.id,
+      tray_qr: value,
+      expected_tray_qr: item.tray_qr,
+      scanned_at: new Date().toISOString(),
+      restored: true
+    });
+  });
+
+  return scans;
 }
 
 function startBagPacking(bag, data, options = {}) {
@@ -1021,86 +1109,16 @@ function cancelDuplicateBag() {
   existingBagSessions = [];
 
   duplicateBagModal.classList.add("hidden");
-  resumeBrakiBtn.classList.add("hidden");
   bagInput.value = "";
   bagStatus.innerText = "";
   showOnly("bagScreen");
   focusBagInput();
 }
 
-async function resumeBrakiSession() {
-  if (!pendingBag || !pendingBagData || !existingBagSessions.length) return;
-
-  const last = existingBagSessions[0];
-
-  if (!last.id) {
-    duplicateBagInfo.innerHTML += `<br><br><b style="color:#991b1b;">Nie mogę dopakować tej torby, bo funkcja historii nie zwróciła ID sesji.</b>`;
-    sound("bad");
-    return;
-  }
-
-  duplicateBagModal.classList.add("hidden");
-  bagStatus.innerText = "Ładuję poprzednio spakowane tacki...";
-
-  let details = [];
-
-  const { data, error } = await supabaseClient.rpc("get_report_session_details", {
-    target_session_id: last.id
-  });
-
-  if (error) {
-    bagStatus.innerText = "❌ Nie udało się pobrać szczegółów BRAKI: " + error.message;
-    showOnly("bagScreen");
-    focusBagInput();
-    sound("bad");
-    return;
-  }
-
-  details = data || [];
-
-  const preloadedCorrectScans = [];
-
-  details
-    .filter(row => String(row.item_status || "").toLowerCase() === "ok")
-    .forEach(row => {
-      const item = pendingBagData.find(x =>
-        Number(x.id) === Number(row.plan_item_id) ||
-        (
-          normalizeCode(x.tray_qr) === normalizeCode(row.tray_qr) &&
-          !preloadedCorrectScans.some(s => Number(s.plan_item_id) === Number(x.id))
-        )
-      );
-
-      if (!item) return;
-
-      preloadedCorrectScans.push({
-        plan_item_id: item.id,
-        tray_qr: row.scanned_tray_qr || item.tray_qr,
-        expected_tray_qr: item.tray_qr,
-        scanned_at: row.scanned_at || new Date().toISOString(),
-        restored: true
-      });
-    });
-
-  const bag = pendingBag;
-  const bagData = pendingBagData;
-
-  pendingBag = null;
-  pendingBagData = [];
-  existingBagSessions = [];
-
-  startBagPacking(bag, bagData, {
-    resumedSessionId: last.id,
-    resumedFromBraki: true,
-    preloadedCorrectScans
-  });
-}
-
 async function replaceOldBagSession() {
   if (!pendingBag) return;
 
   duplicateBagModal.classList.add("hidden");
-  resumeBrakiBtn.classList.add("hidden");
   bagStatus.innerText = "Usuwam ostatni zapis tej torby...";
 
   const { error } = await supabaseClient
@@ -1128,7 +1146,6 @@ function packAnotherSameBag() {
   if (!pendingBag) return;
 
   duplicateBagModal.classList.add("hidden");
-  resumeBrakiBtn.classList.add("hidden");
 
   const bag = pendingBag;
   const data = pendingBagData;
@@ -1243,7 +1260,7 @@ function render() {
           ${wrong.length ? wrong.map((x, i) => `
             <div>
               ${escapeHtml(x)}
-              <button onclick="removeWrong(${i})">Usuń</button>
+              <button type="button" onclick="event.preventDefault(); event.stopPropagation(); removeWrong(${i})">Usuń</button>
             </div>
           `).join("") : "-"}
         </div>
@@ -1255,7 +1272,7 @@ function render() {
           ${duplicates.length ? duplicates.map((x, i) => `
             <div>
               ${escapeHtml(x)}
-              <button onclick="removeDuplicate(${i})">Usuń</button>
+              <button type="button" onclick="event.preventDefault(); event.stopPropagation(); removeDuplicate(${i})">Usuń</button>
             </div>
           `).join("") : "-"}
         </div>
@@ -1358,6 +1375,8 @@ async function checkAutoClose() {
 }
 
 async function closeBagCorrect() {
+  if (!currentBag || isClosing) return;
+
   isClosing = true;
   status.innerText = resumedFromBraki
     ? "🎉 BRAKI DOPAKOWANE — TORBA GOTOWA"
@@ -1378,13 +1397,6 @@ async function closeBagBraki() {
 
   if (!missing.length && wrong.length === 0 && duplicates.length === 0) {
     await closeBagCorrect();
-    return;
-  }
-
-  if (wrong.length || duplicates.length) {
-    status.innerText = "⚠️ Usuń błędne tacki / duplikaty albo zamknij torbę jako niepoprawną.";
-    status.className = "trayStatus warn";
-    sound("warn");
     return;
   }
 
@@ -1413,11 +1425,13 @@ async function closeBagBad() {
   isClosing = true;
   badCloseBtn.disabled = true;
   brakiCloseBtn.disabled = true;
+
   status.innerText = "Zapisuję torbę jako niepoprawną...";
   status.className = "trayStatus warn";
   sound("warn");
 
   const saved = await save("NIEPOPRAWNA");
+
   if (!saved) {
     badCloseBtn.disabled = false;
     brakiCloseBtn.disabled = false;
@@ -1508,8 +1522,16 @@ async function saveSessionRow(st, payload) {
       .select("id")
       .single();
 
-    if (error) throw error;
-    return data.id;
+    if (!error && data && data.id) return data.id;
+
+    const fallback = await supabaseClient
+      .from("packing_sessions")
+      .insert(payload)
+      .select("id")
+      .single();
+
+    if (fallback.error) throw fallback.error;
+    return fallback.data.id;
   }
 
   const { data, error } = await supabaseClient
@@ -1528,15 +1550,19 @@ async function saveSessionItems(sessionId, rows) {
       .from("packing_session_items")
       .delete()
       .eq("session_id", sessionId);
-  } catch(e) {}
 
-  if (!rows.length) return;
+    if (!rows.length) return;
 
-  const { error } = await supabaseClient
-    .from("packing_session_items")
-    .insert(rows);
+    const { error } = await supabaseClient
+      .from("packing_session_items")
+      .insert(rows);
 
-  if (error) throw error;
+    if (error) {
+      console.warn("Nie zapisano szczegółów pozycji:", error.message);
+    }
+  } catch(e) {
+    console.warn("Nie zapisano szczegółów pozycji:", e.message);
+  }
 }
 
 async function save(st) {
@@ -1547,6 +1573,7 @@ async function save(st) {
   try {
     const sessionId = await saveSessionRow(st, payload);
     const itemRows = buildItemRows(sessionId, st, closedAt);
+
     await saveSessionItems(sessionId, itemRows);
 
     resumedSessionId = sessionId;
