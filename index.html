@@ -621,6 +621,18 @@ let resumedFromBraki = false;
 let audioCtx = null;
 let logoutTimer = null;
 
+function makeUuid() {
+  if (window.crypto && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    const v = c === "x" ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, m => ({
     "&":"&amp;",
@@ -1441,10 +1453,11 @@ async function closeBagBad() {
   reset();
 }
 
-function buildSessionPayload(st, closedAt, durationSeconds) {
+function buildSessionPayload(st, closedAt, durationSeconds, sessionId) {
   const missing = getMissing();
 
   return {
+    id: sessionId,
     bag_qr: currentBag,
     user_id: currentUser.id,
     user_login: currentUser.email,
@@ -1513,101 +1526,26 @@ function buildItemRows(sessionId, st, closedAt) {
   return rows;
 }
 
-async function saveSessionRow(st, payload) {
-  if (resumedSessionId) {
-    const { data, error } = await supabaseClient
-      .from("packing_sessions")
-      .update(payload)
-      .eq("id", resumedSessionId)
-      .select("id")
-      .single();
-
-    if (!error && data && data.id) return data.id;
-
-    const fallback = await supabaseClient
-      .from("packing_sessions")
-      .insert(payload)
-      .select("id")
-      .single();
-
-    if (fallback.error) throw fallback.error;
-    return fallback.data.id;
-  }
-
-  const { data, error } = await supabaseClient
-    .from("packing_sessions")
-    .insert(payload)
-    .select("id")
-    .single();
-
-  if (error) throw error;
-  return data.id;
-}
-
-<script>
-// NIE WKLEJAJ CAŁEGO <script> OD NOWA.
-// Podmień tylko funkcje: makeUuid, saveSessionRow, saveSessionItems, save.
-// Funkcję makeUuid możesz wkleić tuż przed saveSessionRow.
-
-function makeUuid() {
-  if (window.crypto && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
-    const r = Math.random() * 16 | 0;
-    const v = c === "x" ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
-
-async function saveSessionRow(st, payload) {
+async function saveSessionRow(payload) {
   /*
     WAŻNE:
-    Worker ma INSERT do packing_sessions, ale nie ma SELECT.
-    Dlatego NIE używamy .select("id").single() po insert.
-    Generujemy ID po stronie HTML i wkładamy je razem z rekordem.
+    Nie używamy .select("id").single() po insert,
+    bo worker/manager może mieć INSERT bez SELECT.
   */
-
-  if (resumedSessionId) {
-    const updatePayload = {
-      ...payload,
-      closed_at: payload.closed_at
-    };
-
-    const updateResult = await supabaseClient
-      .from("packing_sessions")
-      .update(updatePayload)
-      .eq("id", resumedSessionId);
-
-    if (!updateResult.error) {
-      return resumedSessionId;
-    }
-
-    console.warn("Nie udało się zaktualizować starego wpisu BRAKI, tworzę nowy wpis:", updateResult.error.message);
-  }
-
-  const newSessionId = makeUuid();
-
-  const insertPayload = {
-    id: newSessionId,
-    ...payload
-  };
 
   const { error } = await supabaseClient
     .from("packing_sessions")
-    .insert(insertPayload);
+    .insert(payload);
 
   if (error) throw error;
 
-  return newSessionId;
+  return payload.id;
 }
 
 async function saveSessionItems(sessionId, rows) {
   /*
-    Szczegóły pozycji są dodatkowe.
+    Szczegóły pozycji są dodatkiem.
     Nie mogą blokować zamknięcia torby.
-    Jeżeli RLS/tabela/funkcja odmówi zapisu — torba i tak ma się zamknąć w packing_sessions.
   */
 
   try {
@@ -1633,10 +1571,12 @@ async function saveSessionItems(sessionId, rows) {
 async function save(st) {
   const closedAt = new Date();
   const durationSeconds = startedAt ? Math.round((closedAt - startedAt) / 1000) : null;
-  const payload = buildSessionPayload(st, closedAt, durationSeconds);
+  const sessionId = makeUuid();
+
+  const payload = buildSessionPayload(st, closedAt, durationSeconds, sessionId);
 
   try {
-    const sessionId = await saveSessionRow(st, payload);
+    await saveSessionRow(payload);
 
     let itemRows = [];
     try {
@@ -1656,31 +1596,6 @@ async function save(st) {
     status.innerText = "❌ Nie zapisano wyniku. Nie skanuj kolejnej torby. " + error.message;
     status.className = "trayStatus bad";
     console.error("Błąd zapisu torby:", error);
-    sound("bad");
-    isClosing = false;
-    return false;
-  }
-}
-</script>
-
-async function save(st) {
-  const closedAt = new Date();
-  const durationSeconds = startedAt ? Math.round((closedAt - startedAt) / 1000) : null;
-  const payload = buildSessionPayload(st, closedAt, durationSeconds);
-
-  try {
-    const sessionId = await saveSessionRow(st, payload);
-    const itemRows = buildItemRows(sessionId, st, closedAt);
-
-    await saveSessionItems(sessionId, itemRows);
-
-    resumedSessionId = sessionId;
-
-    return true;
-
-  } catch(error) {
-    status.innerText = "❌ Nie zapisano wyniku. Nie skanuj kolejnej torby. " + error.message;
-    status.className = "trayStatus bad";
     sound("bad");
     isClosing = false;
     return false;
