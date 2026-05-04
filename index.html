@@ -1407,7 +1407,16 @@ async function closeBagBraki() {
 
   const missing = getMissing();
 
-  if (!missing.length && wrong.length === 0 && duplicates.length === 0) {
+  if (wrong.length > 0 || duplicates.length > 0) {
+    status.innerText =
+      "❌ BRAKI można zamknąć tylko wtedy, gdy problemem są wyłącznie brakujące tacki. Usuń błędne/duplikaty albo zamknij torbę jako niepoprawną.";
+    status.className = "trayStatus bad";
+    sound("bad");
+    focusTrayInput();
+    return;
+  }
+
+  if (!missing.length) {
     await closeBagCorrect();
     return;
   }
