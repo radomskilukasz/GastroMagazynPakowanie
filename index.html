@@ -1544,7 +1544,72 @@ async function saveSessionRow(st, payload) {
   return data.id;
 }
 
+<script>
+// NIE WKLEJAJ CAŁEGO <script> OD NOWA.
+// Podmień tylko funkcje: makeUuid, saveSessionRow, saveSessionItems, save.
+// Funkcję makeUuid możesz wkleić tuż przed saveSessionRow.
+
+function makeUuid() {
+  if (window.crypto && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    const v = c === "x" ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+async function saveSessionRow(st, payload) {
+  /*
+    WAŻNE:
+    Worker ma INSERT do packing_sessions, ale nie ma SELECT.
+    Dlatego NIE używamy .select("id").single() po insert.
+    Generujemy ID po stronie HTML i wkładamy je razem z rekordem.
+  */
+
+  if (resumedSessionId) {
+    const updatePayload = {
+      ...payload,
+      closed_at: payload.closed_at
+    };
+
+    const updateResult = await supabaseClient
+      .from("packing_sessions")
+      .update(updatePayload)
+      .eq("id", resumedSessionId);
+
+    if (!updateResult.error) {
+      return resumedSessionId;
+    }
+
+    console.warn("Nie udało się zaktualizować starego wpisu BRAKI, tworzę nowy wpis:", updateResult.error.message);
+  }
+
+  const newSessionId = makeUuid();
+
+  const insertPayload = {
+    id: newSessionId,
+    ...payload
+  };
+
+  const { error } = await supabaseClient
+    .from("packing_sessions")
+    .insert(insertPayload);
+
+  if (error) throw error;
+
+  return newSessionId;
+}
+
 async function saveSessionItems(sessionId, rows) {
+  /*
+    Szczegóły pozycji są dodatkowe.
+    Nie mogą blokować zamknięcia torby.
+    Jeżeli RLS/tabela/funkcja odmówi zapisu — torba i tak ma się zamknąć w packing_sessions.
+  */
+
   try {
     await supabaseClient
       .from("packing_session_items")
@@ -1564,6 +1629,39 @@ async function saveSessionItems(sessionId, rows) {
     console.warn("Nie zapisano szczegółów pozycji:", e.message);
   }
 }
+
+async function save(st) {
+  const closedAt = new Date();
+  const durationSeconds = startedAt ? Math.round((closedAt - startedAt) / 1000) : null;
+  const payload = buildSessionPayload(st, closedAt, durationSeconds);
+
+  try {
+    const sessionId = await saveSessionRow(st, payload);
+
+    let itemRows = [];
+    try {
+      itemRows = buildItemRows(sessionId, st, closedAt);
+    } catch(e) {
+      console.warn("Nie zbudowano szczegółów pozycji:", e.message);
+      itemRows = [];
+    }
+
+    await saveSessionItems(sessionId, itemRows);
+
+    resumedSessionId = sessionId;
+
+    return true;
+
+  } catch(error) {
+    status.innerText = "❌ Nie zapisano wyniku. Nie skanuj kolejnej torby. " + error.message;
+    status.className = "trayStatus bad";
+    console.error("Błąd zapisu torby:", error);
+    sound("bad");
+    isClosing = false;
+    return false;
+  }
+}
+</script>
 
 async function save(st) {
   const closedAt = new Date();
