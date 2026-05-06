@@ -1537,10 +1537,34 @@ function buildItemRows(sessionId, st, closedAt) {
 
 async function saveSessionRow(payload) {
   /*
-    WAŻNE:
-    Nie używamy .select("id").single() po insert,
-    bo worker/manager może mieć INSERT bez SELECT.
+    Jeżeli torba była otwarta z BRAKI, nie tworzymy drugiego wpisu.
+    Aktualizujemy istniejący wpis BRAKI na POPRAWNA / BRAKI / NIEPOPRAWNA.
   */
+
+  if (resumedSessionId) {
+    const { data, error } = await supabaseClient.rpc("update_braki_packing_session", {
+      p_session_id: resumedSessionId,
+      p_bag_qr: payload.bag_qr,
+      p_status: payload.status,
+      p_started_at: payload.started_at,
+      p_closed_at: payload.closed_at,
+      p_expected_count: payload.expected_count,
+      p_correct_count: payload.correct_count,
+      p_all_scans: payload.all_scans,
+      p_missing_trays: payload.missing_trays,
+      p_wrong_trays: payload.wrong_trays,
+      p_duplicate_trays: payload.duplicate_trays,
+      p_duration_seconds: payload.duration_seconds
+    });
+
+    if (error) throw error;
+
+    if (data !== "OK") {
+      throw new Error(data || "Nie udało się zaktualizować wpisu BRAKI.");
+    }
+
+    return resumedSessionId;
+  }
 
   const { error } = await supabaseClient
     .from("packing_sessions")
@@ -1550,7 +1574,6 @@ async function saveSessionRow(payload) {
 
   return payload.id;
 }
-
 async function saveSessionItems(sessionId, rows) {
   /*
     Szczegóły pozycji są dodatkiem.
@@ -1580,7 +1603,12 @@ async function saveSessionItems(sessionId, rows) {
 async function save(st) {
   const closedAt = new Date();
   const durationSeconds = startedAt ? Math.round((closedAt - startedAt) / 1000) : null;
-  const sessionId = makeUuid();
+
+  /*
+    Przy normalnej torbie tworzymy nowe ID.
+    Przy torbie otwartej z BRAKI używamy starego ID, żeby nie powstał drugi status tej samej torby.
+  */
+  const sessionId = resumedSessionId || makeUuid();
 
   const payload = buildSessionPayload(st, closedAt, durationSeconds, sessionId);
 
